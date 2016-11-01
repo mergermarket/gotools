@@ -5,7 +5,7 @@ import "github.com/DataDog/datadog-go/statsd"
 
 func TestNewStatsD(t *testing.T) {
 	config := StatsDConfig{
-		IsProduction: true,
+		isProduction: true,
 		host:         "localhost",
 		port:         "8080",
 	}
@@ -19,7 +19,7 @@ func TestNewStatsD(t *testing.T) {
 
 func TestReturnsDummyStatsDIfConfigIsPoo(t *testing.T) {
 	config := StatsDConfig{
-		IsProduction: true,
+		isProduction: true,
 		host:         "",
 		port:         "",
 	}
@@ -32,7 +32,7 @@ func TestReturnsDummyStatsDIfConfigIsPoo(t *testing.T) {
 
 func TestGlobalTagging(t *testing.T) {
 	config := StatsDConfig{
-		IsProduction: true,
+		isProduction: true,
 		host:         "localhost",
 		port:         "8080",
 	}

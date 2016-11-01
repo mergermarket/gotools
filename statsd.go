@@ -21,16 +21,16 @@ type StatsD interface {
 
 // StatsDConfig provides configuration for metrics recording
 type StatsDConfig struct {
-	IsProduction bool
-	Log          logger
+	isProduction bool
+	log          logger
 	host         string
 	port         string
 }
 
 func NewStatsDConfig(isProduction bool, log logger) StatsDConfig {
 	return StatsDConfig{
-		IsProduction: isProduction,
-		Log:          log,
+		isProduction: isProduction,
+		log:          log,
 		host:         os.Getenv("STATSD_HOST"),
 		port:         os.Getenv("STATSD_PORT"),
 	}
@@ -38,8 +38,8 @@ func NewStatsDConfig(isProduction bool, log logger) StatsDConfig {
 
 // NewStatsD provides a new StatsD metrics recorder
 func NewStatsD(config StatsDConfig) (StatsD, error) {
-	if config.IsProduction == false || config.port == "" || config.host == "" {
-		return &dummyStatsD{config.Log}, nil
+	if config.isProduction == false || config.port == "" || config.host == "" {
+		return &dummyStatsD{config.log}, nil
 	}
 	return newMMStatsD(config)
 }
