@@ -9,8 +9,6 @@ import (
 	"github.com/Sirupsen/logrus"
 )
 
-//todo: put me in a separate package (needs dockerfile work, or maybe seperate repo all together?)
-
 // Logger logs messages in a structured format in prod and pretty colours in local.
 type Logger struct {
 	log    *logrus.Logger
