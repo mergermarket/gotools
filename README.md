@@ -54,3 +54,9 @@ Example usage:
   router.Handle("/my-important-endpoint", importantHandler)  
   tools.WrapWithTelemetry("/", router, logger, statsd)
 ```
+
+## test tools
+
+```
+testLogger, testStatsd := tools.NewTestTools()
+```
