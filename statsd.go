@@ -14,9 +14,9 @@ const dummyFmtString = "%s: name: %s, value: %f, tags: %v"
 // StatsD is the interface for the all the DataDog StatsD methods used by
 // mergermarket. Please extend it as needed to record other types of metric.
 type StatsD interface {
-	Histogram(name string, value float64, tags ...string) error
-	Gauge(name string, value float64, tags ...string) error
-	Incr(name string, tags ...string) error
+	Histogram(name string, value float64, tags ...string)
+	Gauge(name string, value float64, tags ...string)
+	Incr(name string, tags ...string)
 }
 
 // StatsDConfig provides configuration for metrics recording
@@ -58,7 +58,7 @@ func newMMStatsD(config StatsDConfig) (*mmStatsD, error) {
 	addGlobalNamespace(sd)
 	addGlobalTags(sd)
 
-	return &mmStatsD{sd}, nil
+	return &mmStatsD{sd, config.log}, nil
 }
 
 func addGlobalNamespace(sd *statsd.Client) {
@@ -78,18 +78,31 @@ func globalTags() []string {
 
 type mmStatsD struct {
 	ddstatsd *statsd.Client
+	log logger
 }
 
-func (mmsd *mmStatsD) Histogram(name string, value float64, tags ...string) error {
-	return mmsd.ddstatsd.Histogram(name, value, tags, statsdRate)
+const statsDErrMsg = "Failed to send"
+const statsDErrFmt = "%s %s %v"
+
+func (mmsd *mmStatsD) Histogram(name string, value float64, tags ...string)  {
+	if err := mmsd.ddstatsd.Histogram(name, value, tags, statsdRate); err != nil{
+		errMsg := fmt.Sprintf(statsDErrFmt, statsDErrMsg, name, err)
+		mmsd.log.Error(errMsg)
+	}
 }
 
-func (mmsd *mmStatsD) Gauge(name string, value float64, tags ...string) error {
-	return mmsd.ddstatsd.Gauge(name, value, tags, statsdRate)
+func (mmsd *mmStatsD) Gauge(name string, value float64, tags ...string) {
+	if err := mmsd.ddstatsd.Gauge(name, value, tags, statsdRate); err != nil{
+		errMsg := fmt.Sprintf(statsDErrFmt, statsDErrMsg, name, err)
+		mmsd.log.Error(errMsg)
+	}
 }
 
-func (mmsd *mmStatsD) Incr(name string, tags ...string) error {
-	return mmsd.ddstatsd.Incr(name, tags, statsdRate)
+func (mmsd *mmStatsD) Incr(name string, tags ...string) {
+	if err := mmsd.ddstatsd.Incr(name, tags, statsdRate); err != nil{
+		errMsg := fmt.Sprintf(statsDErrFmt, statsDErrMsg, name, err)
+		mmsd.log.Error(errMsg)
+	}
 }
 
 // dummyStatsD is returned when StatsDConfig.isDevelopment is set to true. It
@@ -98,20 +111,17 @@ type dummyStatsD struct {
 	logger
 }
 
-func (dsd dummyStatsD) Histogram(name string, value float64, tags ...string) error {
+func (dsd dummyStatsD) Histogram(name string, value float64, tags ...string) {
 	logString := fmt.Sprintf(dummyFmtString, "Histogram", name, value, tags)
 	dsd.Info(logString)
-	return nil
 }
 
-func (dsd dummyStatsD) Gauge(name string, value float64, tags ...string) error {
+func (dsd dummyStatsD) Gauge(name string, value float64, tags ...string) {
 	logString := fmt.Sprintf(dummyFmtString, "Gauge", name, value, tags)
 	dsd.Info(logString)
-	return nil
 }
 
-func (dsd dummyStatsD) Incr(name string, tags ...string) error {
+func (dsd dummyStatsD) Incr(name string, tags ...string) {
 	logString := fmt.Sprintf(dummyFmtString, "Increment", name, 0.0, tags)
 	dsd.Info(logString)
-	return nil
 }

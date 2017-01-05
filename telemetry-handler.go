@@ -8,6 +8,7 @@ import (
 type logger interface {
 	Debug(...interface{})
 	Info(...interface{})
+	Error(...interface{})
 }
 
 // WrapWithTelemetry takes your http.Handler and adds debug logs with request details and marks metrics
