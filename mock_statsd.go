@@ -31,18 +31,18 @@ type Args struct {
 type MockStatsDExpectation func(t *testing.T, method, name string, value float64, tags []string)
 
 // Histogram is a mock histogrm method
-func (msd *MockStatsD) Histogram(name string, value float64, tags ...string) error {
-	return msd.call("Histogram", name, value, tags)
+func (msd *MockStatsD) Histogram(name string, value float64, tags ...string) {
+	msd.call("Histogram", name, value, tags)
 }
 
 // Gauge is a mock histogrm method
-func (msd *MockStatsD) Gauge(name string, value float64, tags ...string) error {
-	return msd.call("Gauge", name, value, tags)
+func (msd *MockStatsD) Gauge(name string, value float64, tags ...string) {
+	msd.call("Gauge", name, value, tags)
 }
 
 // Incr is a mock histogrm method
-func (msd *MockStatsD) Incr(name string, tags ...string) error {
-	return msd.call("Incr", name, 0, tags)
+func (msd *MockStatsD) Incr(name string, tags ...string) {
+	msd.call("Incr", name, 0, tags)
 }
 
 func (msd *MockStatsD) Call() (c Call, err error) {
