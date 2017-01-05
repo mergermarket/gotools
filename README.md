@@ -58,5 +58,5 @@ Example usage:
 ## test tools
 
 ```
-testLogger, testStatsd := tools.NewTestTools()
+testLogger, testStatsd := tools.NewTestTools(t)
 ```
