@@ -9,34 +9,41 @@ import (
 	"github.com/Sirupsen/logrus"
 )
 
+type Logger interface {
+	Info(msg ...interface{})
+	Error(msg ...interface{})
+	Debug(msg ...interface{})
+	Warn(msg ...interface{})
+}
+
 // Logger logs messages in a structured format in prod and pretty colours in local.
-type Logger struct {
+type logrusLogger struct {
 	log    *logrus.Logger
 	fields logrus.Fields
 }
 
 // Info should be used to log key application events.
-func (l *Logger) Info(msg ...interface{}) {
+func (l *logrusLogger) Info(msg ...interface{}) {
 	l.log.WithFields(l.fields).Info(msg)
 }
 
 // Error should be used to log events that need to be actioned on immediately.
-func (l *Logger) Error(msg ...interface{}) {
+func (l *logrusLogger) Error(msg ...interface{}) {
 	l.log.WithFields(l.fields).Error(msg)
 }
 
 // Debug can be used to log events for local development.
-func (l *Logger) Debug(msg ...interface{}) {
+func (l *logrusLogger) Debug(msg ...interface{}) {
 	l.log.WithFields(l.fields).Debug(msg)
 }
 
 // Warn is for when something bad happened but doesnt need instant action.
-func (l *Logger) Warn(msg ...interface{}) {
+func (l *logrusLogger) Warn(msg ...interface{}) {
 	l.log.WithFields(l.fields).Warn(msg)
 }
 
 // NewLogger returns a new structured logger.
-func NewLogger(isLocal bool) *Logger {
+func NewLogger(isLocal bool) Logger {
 	logger := logrus.New()
 
 	if strings.ToLower(os.Getenv("LOG_LEVEL")) == "debug" {
@@ -47,7 +54,7 @@ func NewLogger(isLocal bool) *Logger {
 		logger.Formatter = &logrus.JSONFormatter{}
 	}
 
-	return &Logger{
+	return &logrusLogger{
 		log: logger,
 		fields: logrus.Fields{
 			"component": getComponentName(),

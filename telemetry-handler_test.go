@@ -7,8 +7,7 @@ import (
 
 func TestTimeTrack(t *testing.T) {
 	msd := &MockStatsD{}
-	tl := TestLogger{t}
-	timeTrack("aTestRoute", time.Now(), tl, msd)
+	timeTrack("aTestRoute", time.Now(), msd)
 
 	call, err := msd.Call()
 
