@@ -7,7 +7,7 @@ import (
 )
 
 // NewTestTools returns a logger and statsd instance to use in your tests
-func NewTestTools(t *testing.T) (logger, StatsD) {
+func NewTestTools(t *testing.T) (Logger, StatsD) {
 	logger := TestLogger{T: t}
 	statsd, _ := NewStatsD(NewStatsDConfig(false, logger))
 	return logger, statsd
