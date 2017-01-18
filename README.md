@@ -60,3 +60,20 @@ Example usage:
 ```
 testLogger, testStatsd := tools.NewTestTools(t)
 ```
+
+## httputil.ValidateParamsHandler
+
+Example:
+
+```
+type MainHandler struct{}
+
+func (mh MainHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	fmt.Fprint(w, "Hello world\n")
+}
+
+func main() {
+	http.Handle("/", httputil.ValidateParamsHandler(MainHandler{}, "X-Component", "X-User-ID"))
+	http.ListenAndServe(":8080", nil)
+}
+```
