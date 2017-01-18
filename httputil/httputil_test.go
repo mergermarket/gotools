@@ -37,6 +37,17 @@ func TestValidate_ReturnsNoErrorWhenAllRequiredParamsSupplied(t *testing.T) {
 
 }
 
+func TestValidate_WorksWithCaseInsensitiveHeaders(t *testing.T) {
+	req := httptest.NewRequest("GET", "http://example.com", nil)
+	req.Header.Add("UPPERCASE-HEADER", "somethingValue")
+	req.Header.Add("lowercase-header", "somethingValue")
+	err := Validate([]string{"uppercase-header", "LOWERCASE-HEADER"}, req)
+
+	if err != nil {
+		t.Error("Expected no errors as validation should be case insensitive")
+	}
+}
+
 type TestHandler struct{}
 
 func (h TestHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -56,6 +67,29 @@ func TestValidateParamsHandler_RequiredParamsPassed(t *testing.T) {
 	req.Header.Add("Required-Two", "something")
 	req.Header.Add("Required-One", "something-else")
 	req.Header.Add("Other-Header", "not-relevant")
+
+	resp, err := client.Do(req)
+
+	if err != nil {
+		t.Error(err)
+	}
+	if resp.StatusCode != 200 {
+		t.Errorf("Expected status code 200 but got %d", resp.StatusCode)
+	}
+}
+
+func TestValidateParamsHandler_WorksWithCaseInsensitiveHeaders(t *testing.T) {
+	testHandler := TestHandler{}
+	testHandlerWithValidation := ValidateParamsHandler(testHandler, "uppercase-header", "LOWERCASE-HEADER")
+
+	ts := httptest.NewServer(testHandlerWithValidation)
+	defer ts.Close()
+
+	client := &http.Client{}
+	req := httptest.NewRequest("GET", ts.URL, nil)
+	req.RequestURI = ""
+	req.Header.Add("UPPERCASE-HEADER", "something")
+	req.Header.Add("lowercase-header", "something")
 
 	resp, err := client.Do(req)
 
