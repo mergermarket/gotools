@@ -55,6 +55,20 @@ Example usage:
   tools.WrapWithTelemetry("/", router, logger, statsd)
 ```
 
+## telemetry-http-client
+
+TelemetryHTTPClient takes your http.Client and adds metrics
+
+Example usage:
+
+```
+    logger := tools.NewLogger(config.IsLocal())
+	statsd, _ := tools.NewStatsD(tools.NewStatsDConfig(!config.IsLocal(), logger))
+	httpClient := http.DefaultClient
+	telemetryHttpClient := TelemetryHTTPClient(httpClient , statsd, time, "mycallee")
+
+```
+
 ## test tools
 
 ```
