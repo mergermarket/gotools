@@ -52,7 +52,12 @@ func (thc *telemetryHTTPClient) Post(url string, bodyType string, body io.Reader
 	return thc.Do(req)
 }
 
+type timeClock struct {}
 
-func TelemetryHTTPClient(client *http.Client, statsd StatsD, clock clock, callee string) TelemetryHttpClient {
-	return &telemetryHTTPClient{statsd:statsd, httpClient:client, clock:clock, callee:callee}
+func (c *timeClock) Now() time.Time {
+	return time.Now()
+}
+
+func TelemetryHTTPClient(client *http.Client, statsd StatsD, callee string) TelemetryHttpClient {
+	return &telemetryHTTPClient{statsd:statsd, httpClient:client, clock:&timeClock{}, callee:callee}
 }

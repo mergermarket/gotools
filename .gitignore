@@ -31,6 +31,3 @@ _testmain.go
 # external packages folder
 vendor/
 
-.gitignore
-.idea/
-*.iml

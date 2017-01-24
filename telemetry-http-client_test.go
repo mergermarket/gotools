@@ -24,7 +24,8 @@ func TestTelemetryHTTPClient_Do(t *testing.T) {
 
 	msd := &MockStatsD{}
 	hc := http.DefaultClient
-	wc := TelemetryHTTPClient(hc, msd, fc, "my-remote-service")
+	wc := &telemetryHTTPClient{statsd:msd, httpClient:hc, clock:fc, callee:"my-remote-service"}
+
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello World")
 	}))
@@ -54,7 +55,7 @@ func TestTelemetryHTTPClient_Get(t *testing.T) {
 
 	msd := &MockStatsD{}
 	hc := http.DefaultClient
-	wc := TelemetryHTTPClient(hc, msd, fc, "my-remote-service")
+	wc := &telemetryHTTPClient{statsd:msd, httpClient:hc, clock:fc, callee:"my-remote-service"}
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello World")
 	}))
@@ -81,7 +82,7 @@ func TestTelemetryHTTPClient_Post(t *testing.T) {
 
 	msd := &MockStatsD{}
 	hc := http.DefaultClient
-	wc := TelemetryHTTPClient(hc, msd, fc, "my-remote-service")
+	wc := &telemetryHTTPClient{statsd:msd, httpClient:hc, clock:fc, callee:"my-remote-service"}
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello World")
 	}))
