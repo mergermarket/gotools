@@ -25,13 +25,20 @@ type telemetryHTTPClient struct {
 }
 
 const responseTimeKey = "http_client.response_time_ms"
+const responseErrorKey = "http_client.response_error"
+const responseSuccessKey = "http_client.response_success"
 
 func (thc *telemetryHTTPClient) Do(r *http.Request) (*http.Response, error) {
 	start := thc.clock.Now()
 	resp, err := thc.httpClient.Do(r)
-	finish := thc.clock.Now()
-	duration := (finish.Nanosecond()-start.Nanosecond())/1000000
-	thc.statsd.Histogram(responseTimeKey, float64(duration), "http_callee:"+thc.callee, "method:"+r.Method, fmt.Sprintf("resp_status:%d",resp.StatusCode))
+	if err != nil {
+		thc.statsd.Incr(responseErrorKey, "http_callee:"+thc.callee, "method:"+r.Method)
+	} else {
+		finish := thc.clock.Now()
+		duration := (finish.Nanosecond()-start.Nanosecond())/1000000
+		thc.statsd.Histogram(responseTimeKey, float64(duration), "http_callee:"+thc.callee, "method:"+r.Method, fmt.Sprintf("resp_status:%d",resp.StatusCode))
+		thc.statsd.Incr(responseSuccessKey, "http_callee:"+thc.callee, "method:"+r.Method)
+	}
 	return resp, err
 }
 
