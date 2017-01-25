@@ -21,10 +21,13 @@ func (f *fakeClock) Now() time.Time {
 func TestTelemetryHTTPClient_Do(t *testing.T) {
 
 	fc := &fakeClock{make(chan time.Time, 2)}
-
+	callee := "my-remote-service"
 	msd := &MockStatsD{}
 	hc := http.DefaultClient
-	wc := &telemetryHTTPClient{statsd:msd, httpClient:hc, clock:fc, callee:"my-remote-service"}
+	operationMapper := func(r *http.Request) (operationTag string) {
+		return "my-operation"
+	}
+	wc := &telemetryHTTPClient{statsd:msd, httpClient:hc, clock:fc, callee:callee, operationTagFunc:operationMapper}
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello World")
@@ -41,15 +44,16 @@ func TestTelemetryHTTPClient_Do(t *testing.T) {
 
 	resp, _ := wc.Do(req)
 
+	expectedTags := []string{"http_callee:my-remote-service", "method:GET","operation:my-operation", "resp_status:200"}
+
 	assert.Len(t, msd.calls, 2)
 	assert.NotNil(t, resp)
 	assert.Equal(t, "Histogram", msd.calls[0].Method)
 	assert.Equal(t, 100.0, msd.calls[0].Args.Value)
-	assert.Equal(t, []string{"http_callee:my-remote-service", "method:GET", "resp_status:200"}, msd.calls[0].Args.Tags)
-
+	assert.Equal(t, expectedTags, msd.calls[0].Args.Tags)
 	assert.Equal(t, "Incr", msd.calls[1].Method)
 	assert.Equal(t, "http_client.response_success", msd.calls[1].Args.Name)
-	assert.Equal(t, []string{"http_callee:my-remote-service", "method:GET"}, msd.calls[1].Args.Tags)
+	assert.Equal(t, expectedTags, msd.calls[1].Args.Tags)
 }
 
 func TestTelemetryHTTPClient_Do_Error(t *testing.T) {
