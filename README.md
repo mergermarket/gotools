@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/mergermarket/gotools.svg?branch=master)](https://travis-ci.org/mergermarket/gotools)
+
 # gotools
 
 Gotools provides a few simple building blocks for Mergermarket apps.
