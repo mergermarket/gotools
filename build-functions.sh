@@ -1,29 +1,6 @@
 #!/bin/bash -e
 
-function installLintPrerequisites() {
-    go get -v github.com/alecthomas/gometalinter
-    go get -v github.com/kardianos/govendor
-    go get -v github.com/HewlettPackard/gas
-}
-
-function installTestPrerequisites() {
-    go get -v github.com/kyoh86/richgo
-}
-
 function lintCode() {
-    installLintPrerequisites
-    set +e
-    if [ ! $(command -v gometalinter) ]
-    then
-        echo "Couldn't find metalinter on your \$PATH. Have you added \$GOPATH/bin to your \$PATH?"
-        echo "Add this to your startup script (e.g. .bashrc):"
-        echo "export PATH=\$PATH:\$GOPATH/bin"
-        exit 1
-    else
-        gometalinter --install --vendor
-    fi
-    set -e
-
     gometalinter \
         --vendor \
         --exclude='error return value not checked.*(Close|Log|Print).*\(errcheck\)$' \
@@ -50,7 +27,6 @@ function fmtCode() {
 }
 
 function runTests() {
-    installTestPrerequisites
     # We need to do a bit of fiddling to generate coverage data from multiple packages and merge them.
     (
         if [ ! -d coverage ]; then
