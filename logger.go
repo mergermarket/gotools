@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Sirupsen/logrus"
+	"runtime"
 )
 
 type Logger interface {
@@ -24,22 +25,37 @@ type logrusLogger struct {
 
 // Info should be used to log key application events.
 func (l *logrusLogger) Info(msg ...interface{}) {
+	setCallingDetails(l.fields)
 	l.log.WithFields(l.fields).Info(msg)
 }
 
 // Error should be used to log events that need to be actioned on immediately.
 func (l *logrusLogger) Error(msg ...interface{}) {
+	setCallingDetails(l.fields)
 	l.log.WithFields(l.fields).Error(msg)
 }
 
 // Debug can be used to log events for local development.
 func (l *logrusLogger) Debug(msg ...interface{}) {
+	setCallingDetails(l.fields)
 	l.log.WithFields(l.fields).Debug(msg)
 }
 
 // Warn is for when something bad happened but doesnt need instant action.
 func (l *logrusLogger) Warn(msg ...interface{}) {
+	setCallingDetails(l.fields)
 	l.log.WithFields(l.fields).Warn(msg)
+}
+
+func setCallingDetails(fields logrus.Fields) {
+	_, file, line, ok := runtime.Caller(2)
+	if ok {
+		fields["file"] = file
+		fields["line"] = line
+	} else {
+		fields["file"] = "Unknown"
+		fields["line"] = "Unknown"
+	}
 }
 
 // NewLogger returns a new structured logger.
