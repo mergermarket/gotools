@@ -19,7 +19,7 @@ function lintCode() {
         --disable=staticcheck \
         --cyclo-over=20 \
         --tests \
-        --deadline=30s
+        --deadline=60s
 }
 
 function fmtCode() {

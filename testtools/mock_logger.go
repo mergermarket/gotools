@@ -1,8 +1,8 @@
-package tools
+package testtools
 
 import (
-"errors"
-"fmt"
+	"errors"
+	"fmt"
 )
 
 // MockLogger provides a basic mock of the logger object.
@@ -18,7 +18,7 @@ type LoggerCall struct {
 
 // Args are the list of arguments to a single logger method
 type LoggerArgs struct {
-	msg string
+	Msg string
 }
 
 // Info is a mock info method
@@ -43,15 +43,14 @@ func (ml *MockLogger) Call() (c LoggerCall, err error) {
 	return ml.calls[0], nil
 }
 
-func (ml *MockLogger) LastCall() (*LoggerCall) {
+func (ml *MockLogger) LastCall() *LoggerCall {
 	if len(ml.calls) == 0 {
 		return nil
 	}
-	return &ml.calls[len(ml.calls) - 1]
+	return &ml.calls[len(ml.calls)-1]
 }
 
-func (ml *MockLogger) call(method string, args ...interface{} ) {
+func (ml *MockLogger) call(method string, args ...interface{}) {
 	msg := fmt.Sprint(args...)
 	ml.calls = append(ml.calls, LoggerCall{method, LoggerArgs{msg}})
 }
-

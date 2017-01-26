@@ -1,14 +1,15 @@
 package tools
 
 import (
-	"testing"
+	"github.com/mergermarket/gotools/testtools"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
-	"github.com/stretchr/testify/assert"
 	"strconv"
+	"testing"
 )
 
-func checkTimingMetricCalled(t *testing.T, statsd *MockStatsD, routeName string, response int) {
+func checkTimingMetricCalled(t *testing.T, statsd *testtools.MockStatsD, routeName string, response int) {
 	call, err := statsd.Call()
 
 	assert.Nil(t, err, "No call made to MockStatsD")
@@ -16,8 +17,8 @@ func checkTimingMetricCalled(t *testing.T, statsd *MockStatsD, routeName string,
 
 	assert.Equal(t, "web.response_time", call.Args.Name, "Expected name of metric to be 'web.response_time', but got:", call.Args.Name)
 
-	assert.Contains(t, call.Args.Tags, "route:" + routeName)
-	assert.Contains(t, call.Args.Tags, "response:" + strconv.Itoa(response))
+	assert.Contains(t, call.Args.Tags, "route:"+routeName)
+	assert.Contains(t, call.Args.Tags, "response:"+strconv.Itoa(response))
 }
 
 type MockHandler struct {
@@ -29,10 +30,10 @@ func (h MockHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func TestWrapWithTelemetryWhenResponseIsOK(t *testing.T) {
-	statsd := &MockStatsD{}
-	logger := &MockLogger{}
+	statsd := &testtools.MockStatsD{}
+	logger := &testtools.MockLogger{}
 	router := &MockHandler{response: http.StatusOK}
-	httpHandler := WrapWithTelemetry("route", router, logger, statsd)
+	httpHandler := HTTPHandlerWithStats("route", router, logger, statsd)
 
 	httpHandler.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest("GET", "http://example.com", nil))
 
@@ -40,16 +41,16 @@ func TestWrapWithTelemetryWhenResponseIsOK(t *testing.T) {
 
 	assert.NotNil(t, lastLogCall, "Expected call to be made")
 	assert.Equal(t, "Info", lastLogCall.Method)
-	assert.Equal(t, "[Request to http://example.com had response code 200]", lastLogCall.Args.msg)
+	assert.Equal(t, "[Request to http://example.com had response code 200]", lastLogCall.Args.Msg)
 
 	checkTimingMetricCalled(t, statsd, "route", http.StatusOK)
 }
 
 func TestWrapWithTelemetryWhenResponseIsError(t *testing.T) {
-	statsd := &MockStatsD{}
-	logger := &MockLogger{}
+	statsd := &testtools.MockStatsD{}
+	logger := &testtools.MockLogger{}
 	router := &MockHandler{response: http.StatusInternalServerError}
-	httpHandler := WrapWithTelemetry("route", router, logger, statsd)
+	httpHandler := HTTPHandlerWithStats("route", router, logger, statsd)
 
 	httpHandler.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest("GET", "http://example.com", nil))
 
@@ -57,7 +58,7 @@ func TestWrapWithTelemetryWhenResponseIsError(t *testing.T) {
 
 	assert.NotNil(t, lastLogCall, "Expected call to be made")
 	assert.Equal(t, "Error", lastLogCall.Method)
-	assert.Equal(t, "[Request to http://example.com had response code 500]", lastLogCall.Args.msg)
+	assert.Equal(t, "[Request to http://example.com had response code 500]", lastLogCall.Args.Msg)
 
 	checkTimingMetricCalled(t, statsd, "route", http.StatusInternalServerError)
 }

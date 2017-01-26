@@ -1,10 +1,10 @@
 package tools
 
 import (
-	"net/http"
-	"github.com/felixge/httpsnoop"
-	"strconv"
 	"fmt"
+	"github.com/felixge/httpsnoop"
+	"net/http"
+	"strconv"
 )
 
 type logger interface {
@@ -13,8 +13,8 @@ type logger interface {
 	Error(...interface{})
 }
 
-// WrapWithTelemetry takes your http.Handler and adds debug logs with request details and marks metrics
-func WrapWithTelemetry(routeName string, router http.Handler, logger logger, statsd StatsD) http.Handler {
+// HTTPHandlerWithStats takes an http.Handler and adds the sending of response time metrics to DataDog, and debug logging of request details
+func HTTPHandlerWithStats(routeName string, router http.Handler, logger logger, statsd StatsD) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logger.Debug(r.Method, "at", r.URL.String())
 		metrics := httpsnoop.CaptureMetrics(router, w, r)
@@ -24,7 +24,7 @@ func WrapWithTelemetry(routeName string, router http.Handler, logger logger, sta
 }
 
 func logResult(routeName string, metrics httpsnoop.Metrics, statsd StatsD, logger logger, url string) {
-	statsd.Histogram("web.response_time", float64(metrics.Duration.Nanoseconds())/1000000, "route:"+routeName, "response:" + strconv.Itoa(metrics.Code))
+	statsd.Histogram("web.response_time", float64(metrics.Duration.Nanoseconds())/1000000, "route:"+routeName, "response:"+strconv.Itoa(metrics.Code))
 
 	message := fmt.Sprint("Request to ", url, " had response code ", metrics.Code)
 	if metrics.Code >= 400 {

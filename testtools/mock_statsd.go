@@ -1,4 +1,4 @@
-package tools
+package testtools
 
 import (
 	"errors"
@@ -8,7 +8,7 @@ import (
 
 // MockStatsD provides a basic mock of the MMG StatsD object. It takes a *testing.T to assert on.
 type MockStatsD struct {
-	calls []Call
+	Calls []Call
 }
 
 // Call is a single call to a StatsD method. It has the method name and the arguments it was called with
@@ -46,13 +46,13 @@ func (msd *MockStatsD) Incr(name string, tags ...string) {
 }
 
 func (msd *MockStatsD) Call() (c Call, err error) {
-	fmt.Println(msd.calls)
-	if len(msd.calls) == 0 {
+	fmt.Println(msd.Calls)
+	if len(msd.Calls) == 0 {
 		return c, errors.New("No calls made")
 	}
-	return msd.calls[0], nil
+	return msd.Calls[0], nil
 }
 
 func (msd *MockStatsD) call(method string, name string, value float64, tags []string) {
-	msd.calls = append(msd.calls, Call{method, Args{name, value, tags}})
+	msd.Calls = append(msd.Calls, Call{method, Args{name, value, tags}})
 }

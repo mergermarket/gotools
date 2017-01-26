@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type TelemetryHTTPClient interface {
+type HTTPClientWithStats interface {
 	Do(r *http.Request) (*http.Response, error)
 	Get(url string) (*http.Response, error)
 	Post(url string, bodyType string, body io.Reader) (*http.Response, error)
@@ -17,7 +17,7 @@ type clock interface {
 	Now() time.Time
 }
 
-type telemetryHTTPClient struct {
+type httpClientWithStats struct {
 	httpClient       *http.Client
 	statsd           StatsD
 	clock            clock
@@ -31,7 +31,7 @@ const responseTimeKey = "http_client.response_time_ms"
 const responseErrorKey = "http_client.response_error"
 const responseSuccessKey = "http_client.response_success"
 
-func (thc *telemetryHTTPClient) Do(r *http.Request) (*http.Response, error) {
+func (thc *httpClientWithStats) Do(r *http.Request) (*http.Response, error) {
 	tags := []string{"http_callee:" + thc.callee, "method:" + r.Method}
 	if thc.operationTagFunc != nil {
 		tags = append(tags, fmt.Sprintf("operation:%s", thc.operationTagFunc(r)))
@@ -50,7 +50,7 @@ func (thc *telemetryHTTPClient) Do(r *http.Request) (*http.Response, error) {
 	return resp, err
 }
 
-func (thc *telemetryHTTPClient) Get(url string) (resp *http.Response, err error) {
+func (thc *httpClientWithStats) Get(url string) (resp *http.Response, err error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return resp, err
@@ -58,7 +58,7 @@ func (thc *telemetryHTTPClient) Get(url string) (resp *http.Response, err error)
 	return thc.Do(req)
 }
 
-func (thc *telemetryHTTPClient) Post(url string, bodyType string, body io.Reader) (resp *http.Response, err error) {
+func (thc *httpClientWithStats) Post(url string, bodyType string, body io.Reader) (resp *http.Response, err error) {
 	req, err := http.NewRequest("POST", url, body)
 	if err != nil {
 		return resp, err
@@ -73,6 +73,6 @@ func (c *timeClock) Now() time.Time {
 	return time.Now()
 }
 
-func NewTelemetryHTTPClient(client *http.Client, statsd StatsD, callee string, operationTagDeterminer func(*http.Request) string) TelemetryHTTPClient {
-	return &telemetryHTTPClient{statsd: statsd, httpClient: client, clock: &timeClock{}, callee: callee, operationTagFunc: operationTagDeterminer}
+func NewHTTPClientWithStats(client *http.Client, statsd StatsD, callee string, operationTagDeterminer func(*http.Request) string) HTTPClientWithStats {
+	return &httpClientWithStats{statsd: statsd, httpClient: client, clock: &timeClock{}, callee: callee, operationTagFunc: operationTagDeterminer}
 }
