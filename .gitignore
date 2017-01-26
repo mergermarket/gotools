@@ -29,8 +29,5 @@ _testmain.go
 *.out
 coverage/
 
-# external packages folder
-vendor/
-
 .idea/
 *.iml
