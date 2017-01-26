@@ -1,10 +1,10 @@
 package tools
 
 import (
-	"net/http"
-	"time"
 	"fmt"
 	"io"
+	"net/http"
+	"time"
 )
 
 type TelemetryHTTPClient interface {
@@ -32,9 +32,9 @@ const responseErrorKey = "http_client.response_error"
 const responseSuccessKey = "http_client.response_success"
 
 func (thc *telemetryHTTPClient) Do(r *http.Request) (*http.Response, error) {
-	tags := []string{"http_callee:"+thc.callee, "method:"+r.Method,}
+	tags := []string{"http_callee:" + thc.callee, "method:" + r.Method}
 	if thc.operationTagFunc != nil {
-		tags = append(tags,  fmt.Sprintf("operation:%s", thc.operationTagFunc(r)))
+		tags = append(tags, fmt.Sprintf("operation:%s", thc.operationTagFunc(r)))
 	}
 	start := thc.clock.Now()
 	resp, err := thc.httpClient.Do(r)
@@ -42,8 +42,8 @@ func (thc *telemetryHTTPClient) Do(r *http.Request) (*http.Response, error) {
 		thc.statsd.Incr(responseErrorKey, tags...)
 	} else {
 		finish := thc.clock.Now()
-		duration := (finish.Nanosecond()-start.Nanosecond())/1000000
-		tags = append(tags, fmt.Sprintf("resp_status:%d",resp.StatusCode))
+		duration := (finish.Nanosecond() - start.Nanosecond()) / 1000000
+		tags = append(tags, fmt.Sprintf("resp_status:%d", resp.StatusCode))
 		thc.statsd.Histogram(responseTimeKey, float64(duration), tags...)
 		thc.statsd.Incr(responseSuccessKey, tags...)
 	}
@@ -67,12 +67,12 @@ func (thc *telemetryHTTPClient) Post(url string, bodyType string, body io.Reader
 	return thc.Do(req)
 }
 
-type timeClock struct {}
+type timeClock struct{}
 
 func (c *timeClock) Now() time.Time {
 	return time.Now()
 }
 
 func NewTelemetryHTTPClient(client *http.Client, statsd StatsD, callee string, operationTagDeterminer func(*http.Request) string) TelemetryHTTPClient {
-	return &telemetryHTTPClient{statsd:statsd, httpClient:client, clock:&timeClock{}, callee:callee, operationTagFunc:operationTagDeterminer}
+	return &telemetryHTTPClient{statsd: statsd, httpClient: client, clock: &timeClock{}, callee: callee, operationTagFunc: operationTagDeterminer}
 }

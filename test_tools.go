@@ -1,9 +1,9 @@
 package tools
 
 import (
+	"math/rand"
 	"testing"
 	"time"
-	"math/rand"
 )
 
 // NewTestTools returns a logger and statsd instance to use in your tests

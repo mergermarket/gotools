@@ -1,13 +1,13 @@
 package tools
 
 import (
-	"testing"
-	"net/http"
-	"net/http/httptest"
 	"fmt"
 	"github.com/stretchr/testify/assert"
-	"time"
+	"net/http"
+	"net/http/httptest"
 	"strings"
+	"testing"
+	"time"
 )
 
 type fakeClock struct {
@@ -27,7 +27,7 @@ func TestTelemetryHTTPClient_Do(t *testing.T) {
 	operationMapper := func(r *http.Request) (operationTag string) {
 		return "my-operation"
 	}
-	wc := &telemetryHTTPClient{statsd:msd, httpClient:hc, clock:fc, callee:callee, operationTagFunc:operationMapper}
+	wc := &telemetryHTTPClient{statsd: msd, httpClient: hc, clock: fc, callee: callee, operationTagFunc: operationMapper}
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello World")
@@ -44,7 +44,7 @@ func TestTelemetryHTTPClient_Do(t *testing.T) {
 
 	resp, _ := wc.Do(req)
 
-	expectedTags := []string{"http_callee:my-remote-service", "method:GET","operation:my-operation", "resp_status:200"}
+	expectedTags := []string{"http_callee:my-remote-service", "method:GET", "operation:my-operation", "resp_status:200"}
 
 	assert.Len(t, msd.calls, 2)
 	assert.NotNil(t, resp)
@@ -62,7 +62,7 @@ func TestTelemetryHTTPClient_Do_Error(t *testing.T) {
 
 	msd := &MockStatsD{}
 	hc := http.DefaultClient
-	wc := &telemetryHTTPClient{statsd:msd, httpClient:hc, clock:fc, callee:"my-remote-service"}
+	wc := &telemetryHTTPClient{statsd: msd, httpClient: hc, clock: fc, callee: "my-remote-service"}
 
 	start := time.Now()
 	fc.times <- start
@@ -88,7 +88,7 @@ func TestTelemetryHTTPClient_Get(t *testing.T) {
 
 	msd := &MockStatsD{}
 	hc := http.DefaultClient
-	wc := &telemetryHTTPClient{statsd:msd, httpClient:hc, clock:fc, callee:"my-remote-service"}
+	wc := &telemetryHTTPClient{statsd: msd, httpClient: hc, clock: fc, callee: "my-remote-service"}
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello World")
 	}))
@@ -115,7 +115,7 @@ func TestTelemetryHTTPClient_Post(t *testing.T) {
 
 	msd := &MockStatsD{}
 	hc := http.DefaultClient
-	wc := &telemetryHTTPClient{statsd:msd, httpClient:hc, clock:fc, callee:"my-remote-service"}
+	wc := &telemetryHTTPClient{statsd: msd, httpClient: hc, clock: fc, callee: "my-remote-service"}
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello World")
 	}))

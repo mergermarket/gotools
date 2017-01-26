@@ -78,28 +78,28 @@ func globalTags() []string {
 
 type mmStatsD struct {
 	ddstatsd *statsd.Client
-	log logger
+	log      logger
 }
 
 const statsDErrMsg = "Failed to send"
 const statsDErrFmt = "%s %s %v"
 
-func (mmsd *mmStatsD) Histogram(name string, value float64, tags ...string)  {
-	if err := mmsd.ddstatsd.Histogram(name, value, tags, statsdRate); err != nil{
+func (mmsd *mmStatsD) Histogram(name string, value float64, tags ...string) {
+	if err := mmsd.ddstatsd.Histogram(name, value, tags, statsdRate); err != nil {
 		errMsg := fmt.Sprintf(statsDErrFmt, statsDErrMsg, name, err)
 		mmsd.log.Error(errMsg)
 	}
 }
 
 func (mmsd *mmStatsD) Gauge(name string, value float64, tags ...string) {
-	if err := mmsd.ddstatsd.Gauge(name, value, tags, statsdRate); err != nil{
+	if err := mmsd.ddstatsd.Gauge(name, value, tags, statsdRate); err != nil {
 		errMsg := fmt.Sprintf(statsDErrFmt, statsDErrMsg, name, err)
 		mmsd.log.Error(errMsg)
 	}
 }
 
 func (mmsd *mmStatsD) Incr(name string, tags ...string) {
-	if err := mmsd.ddstatsd.Incr(name, tags, statsdRate); err != nil{
+	if err := mmsd.ddstatsd.Incr(name, tags, statsdRate); err != nil {
 		errMsg := fmt.Sprintf(statsDErrFmt, statsDErrMsg, name, err)
 		mmsd.log.Error(errMsg)
 	}
