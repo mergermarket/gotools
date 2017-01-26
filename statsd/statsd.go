@@ -1,4 +1,4 @@
-package tools
+package statsd
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 
 	"errors"
 	"github.com/DataDog/datadog-go/statsd"
+	"github.com/mergermarket/gotools/logging"
 )
 
 const statsdRate = 1
@@ -22,12 +23,12 @@ type StatsD interface {
 // StatsDConfig provides configuration for metrics recording
 type StatsDConfig struct {
 	isProduction bool
-	log          logger
+	log          logging.Logger
 	host         string
 	port         string
 }
 
-func NewStatsDConfig(isProduction bool, log logger) StatsDConfig {
+func NewStatsDConfig(isProduction bool, log logging.Logger) StatsDConfig {
 	return StatsDConfig{
 		isProduction: isProduction,
 		log:          log,
@@ -78,7 +79,7 @@ func globalTags() []string {
 
 type mmStatsD struct {
 	ddstatsd *statsd.Client
-	log      logger
+	log      logging.Logger
 }
 
 const statsDErrMsg = "Failed to send"
@@ -108,7 +109,7 @@ func (mmsd *mmStatsD) Incr(name string, tags ...string) {
 // dummyStatsD is returned when StatsDConfig.isDevelopment is set to true. It
 // stubs out the DataDog methods and sends them to the supplied logger
 type dummyStatsD struct {
-	logger
+	logging.Logger
 }
 
 func (dsd dummyStatsD) Histogram(name string, value float64, tags ...string) {
@@ -124,4 +125,18 @@ func (dsd dummyStatsD) Gauge(name string, value float64, tags ...string) {
 func (dsd dummyStatsD) Incr(name string, tags ...string) {
 	logString := fmt.Sprintf(dummyFmtString, "Increment", name, 0.0, tags)
 	dsd.Info(logString)
+}
+
+func getEnv() string {
+	if env := os.Getenv("ENV_NAME"); len(env) > 0 {
+		return env
+	}
+	return "local"
+}
+
+func getComponentName() string {
+	if name := os.Getenv("COMPONENT_NAME"); len(name) > 0 {
+		return name
+	}
+	return "a-service-has-no-name"
 }

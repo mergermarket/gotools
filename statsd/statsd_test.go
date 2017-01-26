@@ -1,4 +1,4 @@
-package tools
+package statsd
 
 import "testing"
 import "github.com/DataDog/datadog-go/statsd"

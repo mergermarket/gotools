@@ -2,6 +2,7 @@ package tools
 
 import (
 	"fmt"
+	"github.com/mergermarket/gotools/statsd"
 	"io"
 	"net/http"
 	"time"
@@ -19,7 +20,7 @@ type clock interface {
 
 type httpClientWithStats struct {
 	httpClient       *http.Client
-	statsd           StatsD
+	statsd           statsd.StatsD
 	clock            clock
 	callee           string
 	operationTagFunc operationTagFunction
@@ -73,6 +74,6 @@ func (c *timeClock) Now() time.Time {
 	return time.Now()
 }
 
-func NewHTTPClientWithStats(client *http.Client, statsd StatsD, callee string, operationTagDeterminer func(*http.Request) string) HTTPClientWithStats {
+func NewHTTPClientWithStats(client *http.Client, statsd statsd.StatsD, callee string, operationTagDeterminer func(*http.Request) string) HTTPClientWithStats {
 	return &httpClientWithStats{statsd: statsd, httpClient: client, clock: &timeClock{}, callee: callee, operationTagFunc: operationTagDeterminer}
 }
