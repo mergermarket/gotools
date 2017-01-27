@@ -29,7 +29,7 @@ func (h MockHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(h.response)
 }
 
-func TestWrapWithTelemetryWhenResponseIsOK(t *testing.T) {
+func TestHTTPHandlerWithStats(t *testing.T) {
 	statsd := &testtools.MockStatsD{}
 	logger := &testtools.MockLogger{}
 	router := &MockHandler{response: http.StatusOK}
@@ -46,7 +46,7 @@ func TestWrapWithTelemetryWhenResponseIsOK(t *testing.T) {
 	checkTimingMetricCalled(t, statsd, "route", http.StatusOK)
 }
 
-func TestWrapWithTelemetryWhenResponseIsError(t *testing.T) {
+func TestHTTPHandlerWithStats_Error(t *testing.T) {
 	statsd := &testtools.MockStatsD{}
 	logger := &testtools.MockLogger{}
 	router := &MockHandler{response: http.StatusInternalServerError}

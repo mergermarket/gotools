@@ -12,16 +12,17 @@ import (
 )
 
 type fakeClock struct {
-	times chan time.Time
+	currentTime time.Time
 }
 
 func (f *fakeClock) Now() time.Time {
-	return <-f.times
+	f.currentTime = f.currentTime.Add(100 * time.Millisecond)
+	return f.currentTime
 }
 
 func TestHTTPClientWithStats_Do(t *testing.T) {
 
-	fc := &fakeClock{make(chan time.Time, 2)}
+	fc := &fakeClock{time.Now()}
 	msd := &testtools.MockStatsD{}
 	hc := http.DefaultClient
 	wc := &httpClientWithStats{statsd: msd, httpClient: hc, clock: fc}
@@ -30,10 +31,6 @@ func TestHTTPClientWithStats_Do(t *testing.T) {
 		fmt.Fprintln(w, "Hello World")
 	}))
 	defer ts.Close()
-
-	start := time.Now()
-	fc.times <- start
-	fc.times <- start.Add(100 * time.Millisecond)
 
 	req, _ := http.NewRequest("GET", ts.URL, nil)
 
@@ -55,15 +52,9 @@ func TestHTTPClientWithStats_Do(t *testing.T) {
 
 func TestHTTPClientWithStats_Do_Error(t *testing.T) {
 
-	fc := &fakeClock{make(chan time.Time, 2)}
-
 	msd := &testtools.MockStatsD{}
 	hc := http.DefaultClient
-	wc := &httpClientWithStats{statsd: msd, httpClient: hc, clock: fc}
-
-	start := time.Now()
-	fc.times <- start
-	fc.times <- start.Add(100 * time.Millisecond)
+	wc := NewHTTPClientWithStats(hc, msd)
 
 	req, _ := http.NewRequest("GET", "http://not-a-domain.zyzyuyziuy", nil)
 
@@ -81,19 +72,13 @@ func TestHTTPClientWithStats_Do_Error(t *testing.T) {
 
 func TestHTTPClientWithStats_Get(t *testing.T) {
 
-	fc := &fakeClock{make(chan time.Time, 2)}
-
 	msd := &testtools.MockStatsD{}
 	hc := http.DefaultClient
-	wc := &httpClientWithStats{statsd: msd, httpClient: hc, clock: fc}
+	wc := NewHTTPClientWithStats(hc, msd)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello World")
 	}))
 	defer ts.Close()
-
-	start := time.Now()
-	fc.times <- start
-	fc.times <- start.Add(100 * time.Millisecond)
 
 	assert.Len(t, msd.Calls, 0)
 
@@ -102,26 +87,18 @@ func TestHTTPClientWithStats_Get(t *testing.T) {
 	assert.Len(t, msd.Calls, 2)
 	assert.NotNil(t, resp)
 	assert.Equal(t, "Histogram", msd.Calls[0].Method)
-	assert.Equal(t, 100.0, msd.Calls[0].Args.Value)
 	assert.Equal(t, []string{"http_callee:my-remote-service", "operation:my-operation", "method:GET", "resp_status:200"}, msd.Calls[0].Args.Tags)
 
 }
 
 func TestHttpClientWithStats_Post(t *testing.T) {
-	fc := &fakeClock{make(chan time.Time, 2)}
-
 	msd := &testtools.MockStatsD{}
 	hc := http.DefaultClient
-	wc := &httpClientWithStats{statsd: msd, httpClient: hc, clock: fc}
+	wc := NewHTTPClientWithStats(hc, msd)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello World")
 	}))
 	defer ts.Close()
-
-	start := time.Now()
-	fc.times <- start
-	fc.times <- start.Add(100 * time.Millisecond)
-
 	assert.Len(t, msd.Calls, 0)
 
 	resp, _ := wc.Post(ts.URL, "application/json", strings.NewReader(`{"hello":"world"}`), "http_callee:my-remote-service", "operation:my-operation")
@@ -129,7 +106,6 @@ func TestHttpClientWithStats_Post(t *testing.T) {
 	assert.Len(t, msd.Calls, 2)
 	assert.NotNil(t, resp)
 	assert.Equal(t, "Histogram", msd.Calls[0].Method)
-	assert.Equal(t, 100.0, msd.Calls[0].Args.Value)
 	assert.Equal(t, []string{"http_callee:my-remote-service", "operation:my-operation", "method:POST", "resp_status:200"}, msd.Calls[0].Args.Tags)
 
 }
