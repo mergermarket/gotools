@@ -19,16 +19,12 @@ func (f *fakeClock) Now() time.Time {
 	return <-f.times
 }
 
-func TestTelemetryHTTPClient_Do(t *testing.T) {
+func TestHTTPClientWithStats_Do(t *testing.T) {
 
 	fc := &fakeClock{make(chan time.Time, 2)}
-	callee := "my-remote-service"
 	msd := &testtools.MockStatsD{}
 	hc := http.DefaultClient
-	operationMapper := func(r *http.Request) (operationTag string) {
-		return "my-operation"
-	}
-	wc := &httpClientWithStats{statsd: msd, httpClient: hc, clock: fc, callee: callee, operationTagFunc: operationMapper}
+	wc := &httpClientWithStats{statsd: msd, httpClient: hc, clock: fc}
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello World")
@@ -43,9 +39,9 @@ func TestTelemetryHTTPClient_Do(t *testing.T) {
 
 	assert.Len(t, msd.Calls, 0)
 
-	resp, _ := wc.Do(req)
+	resp, _ := wc.Do(req, "http_callee:my-remote-service", "operation:my-operation")
 
-	expectedTags := []string{"http_callee:my-remote-service", "method:GET", "operation:my-operation", "resp_status:200"}
+	expectedTags := []string{"http_callee:my-remote-service", "operation:my-operation", "method:GET", "resp_status:200"}
 
 	assert.Len(t, msd.Calls, 2)
 	assert.NotNil(t, resp)
@@ -57,13 +53,13 @@ func TestTelemetryHTTPClient_Do(t *testing.T) {
 	assert.Equal(t, expectedTags, msd.Calls[1].Args.Tags)
 }
 
-func TestTelemetryHTTPClient_Do_Error(t *testing.T) {
+func TestHTTPClientWithStats_Do_Error(t *testing.T) {
 
 	fc := &fakeClock{make(chan time.Time, 2)}
 
 	msd := &testtools.MockStatsD{}
 	hc := http.DefaultClient
-	wc := &httpClientWithStats{statsd: msd, httpClient: hc, clock: fc, callee: "my-remote-service"}
+	wc := &httpClientWithStats{statsd: msd, httpClient: hc, clock: fc}
 
 	start := time.Now()
 	fc.times <- start
@@ -73,23 +69,23 @@ func TestTelemetryHTTPClient_Do_Error(t *testing.T) {
 
 	assert.Len(t, msd.Calls, 0)
 
-	resp, err := wc.Do(req)
+	resp, err := wc.Do(req, "http_callee:my-remote-service", "operation:my-operation")
 
 	assert.Len(t, msd.Calls, 1)
 	assert.NotNil(t, err)
 	assert.Nil(t, resp)
 	assert.Equal(t, "Incr", msd.Calls[0].Method)
 	assert.Equal(t, "http_client.response_error", msd.Calls[0].Args.Name)
-	assert.Equal(t, []string{"http_callee:my-remote-service", "method:GET"}, msd.Calls[0].Args.Tags)
+	assert.Equal(t, []string{"http_callee:my-remote-service", "operation:my-operation", "method:GET"}, msd.Calls[0].Args.Tags)
 }
 
-func TestTelemetryHTTPClient_Get(t *testing.T) {
+func TestHTTPClientWithStats_Get(t *testing.T) {
 
 	fc := &fakeClock{make(chan time.Time, 2)}
 
 	msd := &testtools.MockStatsD{}
 	hc := http.DefaultClient
-	wc := &httpClientWithStats{statsd: msd, httpClient: hc, clock: fc, callee: "my-remote-service"}
+	wc := &httpClientWithStats{statsd: msd, httpClient: hc, clock: fc}
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello World")
 	}))
@@ -101,22 +97,22 @@ func TestTelemetryHTTPClient_Get(t *testing.T) {
 
 	assert.Len(t, msd.Calls, 0)
 
-	resp, _ := wc.Get(ts.URL)
+	resp, _ := wc.Get(ts.URL, "http_callee:my-remote-service", "operation:my-operation")
 
 	assert.Len(t, msd.Calls, 2)
 	assert.NotNil(t, resp)
 	assert.Equal(t, "Histogram", msd.Calls[0].Method)
 	assert.Equal(t, 100.0, msd.Calls[0].Args.Value)
-	assert.Equal(t, []string{"http_callee:my-remote-service", "method:GET", "resp_status:200"}, msd.Calls[0].Args.Tags)
+	assert.Equal(t, []string{"http_callee:my-remote-service", "operation:my-operation", "method:GET", "resp_status:200"}, msd.Calls[0].Args.Tags)
 
 }
 
-func TestTelemetryHTTPClient_Post(t *testing.T) {
+func TestHttpClientWithStats_Post(t *testing.T) {
 	fc := &fakeClock{make(chan time.Time, 2)}
 
 	msd := &testtools.MockStatsD{}
 	hc := http.DefaultClient
-	wc := &httpClientWithStats{statsd: msd, httpClient: hc, clock: fc, callee: "my-remote-service"}
+	wc := &httpClientWithStats{statsd: msd, httpClient: hc, clock: fc}
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello World")
 	}))
@@ -128,12 +124,12 @@ func TestTelemetryHTTPClient_Post(t *testing.T) {
 
 	assert.Len(t, msd.Calls, 0)
 
-	resp, _ := wc.Post(ts.URL, "application/json", strings.NewReader(`{"hello":"world"}`))
+	resp, _ := wc.Post(ts.URL, "application/json", strings.NewReader(`{"hello":"world"}`), "http_callee:my-remote-service", "operation:my-operation")
 
 	assert.Len(t, msd.Calls, 2)
 	assert.NotNil(t, resp)
 	assert.Equal(t, "Histogram", msd.Calls[0].Method)
 	assert.Equal(t, 100.0, msd.Calls[0].Args.Value)
-	assert.Equal(t, []string{"http_callee:my-remote-service", "method:POST", "resp_status:200"}, msd.Calls[0].Args.Tags)
+	assert.Equal(t, []string{"http_callee:my-remote-service", "operation:my-operation", "method:POST", "resp_status:200"}, msd.Calls[0].Args.Tags)
 
 }
