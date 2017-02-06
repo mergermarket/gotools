@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func NewTestTools(t *testing.T) (logging.Logger, statsd.StatsD) {
+func NewTestTools(t testing.TB) (logging.Logger, statsd.StatsD) {
 	logger := TestLogger{T: t}
 	statsd, _ := statsd.NewStatsD(statsd.NewStatsDConfig(false, logger))
 	return logger, statsd

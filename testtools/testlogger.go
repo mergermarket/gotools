@@ -5,7 +5,7 @@ import "testing"
 // TestLogger accepts the testing package so you wont be bombarded with logs
 // when your tests pass but if they fail you will see what's going on.
 type TestLogger struct {
-	T *testing.T
+	T testing.TB
 }
 
 // Info logs info to the test logger.
