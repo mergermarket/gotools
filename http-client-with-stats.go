@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// HTTPClientWithStats takes an http.Client and adds the sending of response time metrics to DataDog
 type HTTPClientWithStats interface {
 	Do(r *http.Request, tags ...string) (*http.Response, error)
 	Get(url string, tags ...string) (*http.Response, error)

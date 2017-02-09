@@ -45,30 +45,31 @@ Example usage:
 
 ```
 
-## telemetry-handler
+## http-handler-with-stats
 
-WrapWithTelemetry takes your http.Handler and adds debug logs with request details and marks metrics
+HTTPHandlerWithStats takes an http.Handler and adds the sending of response time metrics to DataDog, and debug logging of request details
 
 Example usage:
 
 ```
   router := http.NewServeMux()
-  router.Handle("/my-important-endpoint", importantHandler)  
-  tools.WrapWithTelemetry("/", router, logger, statsd)
+  helloHandlerPattern := "/hello"
+  helloHandlerWithStats := tools.HTTPHandlerWithStats(helloHandlerPattern, helloHandler, log, statsd)
+  router.Handle(helloHandlerPattern, helloHandlerWithStats)
 ```
 
-## telemetry-http-client
+## http-client-with-stats
 
-TelemetryHTTPClient takes your http.Client and adds metrics.
+HTTPClientWithStats takes an http.Client and adds the sending of metrics to DataDog.
+Optionally pass in tags with the requests.
 
 Example usage:
 
 ```
     logger := tools.NewLogger(config.IsLocal())
 	statsd, _ := tools.NewStatsD(tools.NewStatsDConfig(!config.IsLocal(), logger))
-	httpClient := http.DefaultClient
-	tHttpClient := TelemetryHTTPClient(httpClient , statsd, "my-remote-service")
-    resp, err := tHttpClient.Get(ts.URL)
+	httpClient := NewHTTPClientWithStats(http.DefaultClient, statsd)
+    resp, err := httpClient.Get(ts.URL, "callee:my-remote-service", "operation:getstuff")
 ```
 
 ## test tools
