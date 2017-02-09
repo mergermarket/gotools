@@ -2,7 +2,6 @@ package tools
 
 import (
 	"fmt"
-	"github.com/mergermarket/gotools/testtools"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -23,7 +22,7 @@ func (f *fakeClock) Now() time.Time {
 func TestHTTPClientWithStats_Do(t *testing.T) {
 
 	fc := &fakeClock{time.Now()}
-	msd := &testtools.MockStatsD{}
+	msd := &MockStatsD{}
 	hc := http.DefaultClient
 	wc := &httpClientWithStats{statsd: msd, httpClient: hc, clock: fc}
 
@@ -52,7 +51,7 @@ func TestHTTPClientWithStats_Do(t *testing.T) {
 
 func TestHTTPClientWithStats_Do_Error(t *testing.T) {
 
-	msd := &testtools.MockStatsD{}
+	msd := &MockStatsD{}
 	hc := http.DefaultClient
 	wc := NewHTTPClientWithStats(hc, msd)
 
@@ -72,7 +71,7 @@ func TestHTTPClientWithStats_Do_Error(t *testing.T) {
 
 func TestHTTPClientWithStats_Get(t *testing.T) {
 
-	msd := &testtools.MockStatsD{}
+	msd := &MockStatsD{}
 	hc := http.DefaultClient
 	wc := NewHTTPClientWithStats(hc, msd)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -92,7 +91,7 @@ func TestHTTPClientWithStats_Get(t *testing.T) {
 }
 
 func TestHttpClientWithStats_Post(t *testing.T) {
-	msd := &testtools.MockStatsD{}
+	msd := &MockStatsD{}
 	hc := http.DefaultClient
 	wc := NewHTTPClientWithStats(hc, msd)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

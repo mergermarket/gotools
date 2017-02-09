@@ -1,7 +1,6 @@
 package tools
 
 import (
-	"github.com/mergermarket/gotools/testtools"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -9,7 +8,7 @@ import (
 	"testing"
 )
 
-func checkTimingMetricCalled(t *testing.T, statsd *testtools.MockStatsD, routeName string, response int) {
+func checkTimingMetricCalled(t *testing.T, statsd *MockStatsD, routeName string, response int) {
 	call, err := statsd.Call()
 
 	assert.Nil(t, err, "No call made to MockStatsD")
@@ -30,8 +29,8 @@ func (h MockHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func TestHTTPHandlerWithStats(t *testing.T) {
-	statsd := &testtools.MockStatsD{}
-	logger := &testtools.MockLogger{}
+	statsd := &MockStatsD{}
+	logger := &MockLogger{}
 	router := &MockHandler{response: http.StatusOK}
 	httpHandler := HTTPHandlerWithStats("route", router, logger, statsd)
 
@@ -47,8 +46,8 @@ func TestHTTPHandlerWithStats(t *testing.T) {
 }
 
 func TestHTTPHandlerWithStats_Error(t *testing.T) {
-	statsd := &testtools.MockStatsD{}
-	logger := &testtools.MockLogger{}
+	statsd := &MockStatsD{}
+	logger := &MockLogger{}
 	router := &MockHandler{response: http.StatusInternalServerError}
 	httpHandler := HTTPHandlerWithStats("route", router, logger, statsd)
 
