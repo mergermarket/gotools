@@ -23,37 +23,38 @@ type logrusLogger struct {
 
 // Info should be used to log key application events.
 func (l *logrusLogger) Info(msg ...interface{}) {
-	setCallingDetails(l.fields)
-	l.log.WithFields(l.fields).Info(msg)
+	l.log.WithFields(withFileAndLine(l.fields)).Info(msg)
 }
 
 // Error should be used to log events that need to be actioned on immediately.
 func (l *logrusLogger) Error(msg ...interface{}) {
-	setCallingDetails(l.fields)
-	l.log.WithFields(l.fields).Error(msg)
+	l.log.WithFields(withFileAndLine(l.fields)).Error(msg)
 }
 
 // Debug can be used to log events for local development.
 func (l *logrusLogger) Debug(msg ...interface{}) {
-	setCallingDetails(l.fields)
-	l.log.WithFields(l.fields).Debug(msg)
+	l.log.WithFields(withFileAndLine(l.fields)).Debug(msg)
 }
 
 // Warn is for when something bad happened but doesnt need instant action.
 func (l *logrusLogger) Warn(msg ...interface{}) {
-	setCallingDetails(l.fields)
-	l.log.WithFields(l.fields).Warn(msg)
+	l.log.WithFields(withFileAndLine(l.fields)).Warn(msg)
 }
 
-func setCallingDetails(fields logrus.Fields) {
+func withFileAndLine(fields logrus.Fields) logrus.Fields {
+	newFields := make(map[string]interface{})
 	_, file, line, ok := runtime.Caller(2)
-	if ok {
-		fields["file"] = file
-		fields["line"] = line
-	} else {
-		fields["file"] = "Unknown"
-		fields["line"] = "Unknown"
+	for k,v := range fields {
+		newFields[k] = v
 	}
+	if ok {
+		newFields["file"] = file
+		newFields["line"] = line
+	} else {
+		newFields["file"] = "Unknown"
+		newFields["line"] = "Unknown"
+	}
+	return newFields
 }
 
 // NewLogger returns a new structured logger.
