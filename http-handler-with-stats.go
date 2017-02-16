@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/felixge/httpsnoop"
 	"net/http"
-	"strconv"
 )
 
 type logger interface {
@@ -24,10 +23,11 @@ func HTTPHandlerWithStats(routeName string, router http.Handler, logger logger, 
 }
 
 func logResult(routeName string, metrics httpsnoop.Metrics, statsd StatsD, logger logger, url string) {
-	statsd.Histogram("web.response_time", float64(metrics.Duration.Nanoseconds())/1000000, "route:"+routeName, "response:"+strconv.Itoa(metrics.Code))
-	responseCodeKey := fmt.Sprintf("web.response_code.%s", strconv.Itoa(metrics.Code))
-	statsd.Incr(responseCodeKey, "route:"+routeName, "response:"+strconv.Itoa(metrics.Code))
-	statsd.Incr("web.response_code.all", "route:"+routeName, "response:"+strconv.Itoa(metrics.Code))
+	responseTag := fmt.Sprintf("response:%d", metrics.Code)
+	statsd.Histogram(WebResponseTimeKey, float64(metrics.Duration.Nanoseconds())/1000000, "route:"+routeName, responseTag)
+	responseCodeKey := fmt.Sprintf(WebResponseCodeFormatKey, metrics.Code)
+	statsd.Incr(responseCodeKey, "route:"+routeName, responseTag)
+	statsd.Incr(WebResponseCodeAllKey, "route:"+routeName, responseTag)
 
 	message := fmt.Sprint("Request to ", url, " had response code ", metrics.Code)
 	if metrics.Code >= 400 {

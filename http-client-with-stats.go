@@ -24,25 +24,22 @@ type httpClientWithStats struct {
 	clock      clock
 }
 
-const responseTimeKey = "http_client.response_time_ms"
-const responseErrorKey = "http_client.response_error"
-const responseSuccessKey = "http_client.response_success"
 
 func (thc *httpClientWithStats) Do(r *http.Request, tags ...string) (*http.Response, error) {
 	tags = append(tags, fmt.Sprintf("method:%s", r.Method))
 	start := thc.clock.Now()
 	resp, err := thc.httpClient.Do(r)
 	if err != nil {
-		thc.statsd.Incr(responseErrorKey, tags...)
+		thc.statsd.Incr(HttpClientResponseErrorKey, tags...)
 	} else {
 		finish := thc.clock.Now()
 		duration := (finish.Nanosecond() - start.Nanosecond()) / 1000000
 		tags = append(tags, fmt.Sprintf("resp_status:%d", resp.StatusCode))
-		thc.statsd.Histogram(responseTimeKey, float64(duration), tags...)
-		thc.statsd.Incr(responseSuccessKey, tags...)
-		responseCodeKey := fmt.Sprintf("http_client.response_code.%d", resp.StatusCode)
+		thc.statsd.Histogram(HttpClientResponseTimeKey, float64(duration), tags...)
+		thc.statsd.Incr(HttpClientResponseSuccessKey, tags...)
+		responseCodeKey := fmt.Sprintf(HttpClientResponseCodeFormatKey, resp.StatusCode)
 		thc.statsd.Incr(responseCodeKey, tags...)
-		thc.statsd.Incr("http_client.response_code.all", tags...)
+		thc.statsd.Incr(HttpClientResponseCodeAllKey, tags...)
 	}
 	return resp, err
 }

@@ -8,8 +8,18 @@ import (
 	"github.com/DataDog/datadog-go/statsd"
 )
 
-const statsdRate = 1
-const dummyFmtString = "%s: name: %s, value: %f, tags: %v"
+const (
+	statsdRate = 1
+	dummyFmtString = "%s: name: %s, value: %f, tags: %v"
+	HttpClientResponseCodeAllKey = "http_client.response_code.all"
+	HttpClientResponseTimeKey = "http_client.response_time_ms"
+	HttpClientResponseErrorKey = "http_client.response_error"
+	HttpClientResponseSuccessKey = "http_client.response_success"
+	HttpClientResponseCodeFormatKey = "http_client.response_code.%d"
+	WebResponseTimeKey = "web.response_time"
+	WebResponseCodeFormatKey = "web.response_code.%d"
+	WebResponseCodeAllKey = "web.response_code.all"
+)
 
 // StatsD is the interface for the all the DataDog StatsD methods used by
 // mergermarket. Please extend it as needed to record other types of metric.
