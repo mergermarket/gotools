@@ -40,6 +40,9 @@ func (thc *httpClientWithStats) Do(r *http.Request, tags ...string) (*http.Respo
 		tags = append(tags, fmt.Sprintf("resp_status:%d", resp.StatusCode))
 		thc.statsd.Histogram(responseTimeKey, float64(duration), tags...)
 		thc.statsd.Incr(responseSuccessKey, tags...)
+		responseCodeKey := fmt.Sprintf("http_client.response_code.%d", resp.StatusCode)
+		thc.statsd.Incr(responseCodeKey, tags...)
+		thc.statsd.Incr("http_client.response_code.all", tags...)
 	}
 	return resp, err
 }
