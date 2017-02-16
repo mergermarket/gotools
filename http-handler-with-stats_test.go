@@ -6,18 +6,23 @@ import (
 	"net/http/httptest"
 	"strconv"
 	"testing"
+	"fmt"
 )
 
-func checkTimingMetricCalled(t *testing.T, statsd *MockStatsD, routeName string, response int) {
-	call, err := statsd.Call()
+func checkMetricsCalled(t *testing.T, statsd *MockStatsD, routeName string, response int, statusCode string) {
+	call := statsd.Calls
 
-	assert.Nil(t, err, "No call made to MockStatsD")
-	assert.Equal(t, "Histogram", call.Method)
+	expectedTags := []string{"route:"+routeName, "response:"+strconv.Itoa(response)}
 
-	assert.Equal(t, "web.response_time", call.Args.Name, "Expected name of metric to be 'web.response_time', but got:", call.Args.Name)
-
-	assert.Contains(t, call.Args.Tags, "route:"+routeName)
-	assert.Contains(t, call.Args.Tags, "response:"+strconv.Itoa(response))
+	assert.Len(t, call, 3)
+	assert.Equal(t, "Histogram", call[0].Method)
+	assert.Equal(t, expectedTags, call[0].Args.Tags)
+	assert.Equal(t, "Incr", call[1].Method)
+	assert.Equal(t, fmt.Sprintf("web.response_code.%s", statusCode), call[1].Args.Name)
+	assert.Equal(t, expectedTags, call[1].Args.Tags)
+	assert.Equal(t, "Incr", call[2].Method)
+	assert.Equal(t, "web.response_code.all", call[2].Args.Name)
+	assert.Equal(t, expectedTags, call[2].Args.Tags)
 }
 
 type MockHandler struct {
@@ -42,7 +47,8 @@ func TestHTTPHandlerWithStats(t *testing.T) {
 	assert.Equal(t, "Info", lastLogCall.Method)
 	assert.Equal(t, "[Request to http://example.com had response code 200]", lastLogCall.Args.Msg)
 
-	checkTimingMetricCalled(t, statsd, "route", http.StatusOK)
+	checkMetricsCalled(t, statsd, "route", http.StatusOK, "200")
+
 }
 
 func TestHTTPHandlerWithStats_Error(t *testing.T) {
@@ -59,5 +65,5 @@ func TestHTTPHandlerWithStats_Error(t *testing.T) {
 	assert.Equal(t, "Error", lastLogCall.Method)
 	assert.Equal(t, "[Request to http://example.com had response code 500]", lastLogCall.Args.Msg)
 
-	checkTimingMetricCalled(t, statsd, "route", http.StatusInternalServerError)
+	checkMetricsCalled(t, statsd, "route", http.StatusInternalServerError, "500")
 }

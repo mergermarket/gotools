@@ -39,13 +39,17 @@ func TestHTTPClientWithStats_Do(t *testing.T) {
 
 	expectedTags := []string{"http_callee:my-remote-service", "operation:my-operation", "method:GET", "resp_status:200"}
 
-	assert.Len(t, msd.Calls, 2)
+	assert.Len(t, msd.Calls, 4)
 	assert.NotNil(t, resp)
 	assert.Equal(t, "Histogram", msd.Calls[0].Method)
 	assert.Equal(t, 100.0, msd.Calls[0].Args.Value)
 	assert.Equal(t, expectedTags, msd.Calls[0].Args.Tags)
 	assert.Equal(t, "Incr", msd.Calls[1].Method)
 	assert.Equal(t, "http_client.response_success", msd.Calls[1].Args.Name)
+	assert.Equal(t, "Incr", msd.Calls[2].Method)
+	assert.Equal(t, "http_client.response_code.200", msd.Calls[2].Args.Name)
+	assert.Equal(t, "Incr", msd.Calls[3].Method)
+	assert.Equal(t, "http_client.response_code.all", msd.Calls[3].Args.Name)
 	assert.Equal(t, expectedTags, msd.Calls[1].Args.Tags)
 }
 
@@ -83,10 +87,14 @@ func TestHTTPClientWithStats_Get(t *testing.T) {
 
 	resp, _ := wc.Get(ts.URL, "http_callee:my-remote-service", "operation:my-operation")
 
-	assert.Len(t, msd.Calls, 2)
+	assert.Len(t, msd.Calls, 4)
 	assert.NotNil(t, resp)
 	assert.Equal(t, "Histogram", msd.Calls[0].Method)
 	assert.Equal(t, []string{"http_callee:my-remote-service", "operation:my-operation", "method:GET", "resp_status:200"}, msd.Calls[0].Args.Tags)
+	assert.Equal(t, "Incr", msd.Calls[2].Method)
+	assert.Equal(t, "http_client.response_code.200", msd.Calls[2].Args.Name)
+	assert.Equal(t, "Incr", msd.Calls[3].Method)
+	assert.Equal(t, "http_client.response_code.all", msd.Calls[3].Args.Name)
 
 }
 
@@ -102,9 +110,12 @@ func TestHttpClientWithStats_Post(t *testing.T) {
 
 	resp, _ := wc.Post(ts.URL, "application/json", strings.NewReader(`{"hello":"world"}`), "http_callee:my-remote-service", "operation:my-operation")
 
-	assert.Len(t, msd.Calls, 2)
+	assert.Len(t, msd.Calls, 4)
 	assert.NotNil(t, resp)
 	assert.Equal(t, "Histogram", msd.Calls[0].Method)
 	assert.Equal(t, []string{"http_callee:my-remote-service", "operation:my-operation", "method:POST", "resp_status:200"}, msd.Calls[0].Args.Tags)
-
+	assert.Equal(t, "Incr", msd.Calls[2].Method)
+	assert.Equal(t, "http_client.response_code.200", msd.Calls[2].Args.Name)
+	assert.Equal(t, "Incr", msd.Calls[3].Method)
+	assert.Equal(t, "http_client.response_code.all", msd.Calls[3].Args.Name)
 }
