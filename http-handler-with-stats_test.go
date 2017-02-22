@@ -1,18 +1,18 @@
 package tools
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
 	"testing"
-	"fmt"
 )
 
 func checkMetricsCalled(t *testing.T, statsd *MockStatsD, routeName string, response int, statusCode string) {
 	call := statsd.Calls
 
-	expectedTags := []string{"route:"+routeName, "response:"+strconv.Itoa(response)}
+	expectedTags := []string{"route:" + routeName, "response:" + strconv.Itoa(response)}
 
 	assert.Len(t, call, 3)
 	assert.Equal(t, "Histogram", call[0].Method)
@@ -27,9 +27,15 @@ func checkMetricsCalled(t *testing.T, statsd *MockStatsD, routeName string, resp
 
 type MockHandler struct {
 	response int
+	panic    bool
 }
 
 func (h MockHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	if h.panic == true {
+		panic("at the disco")
+	}
+
 	w.WriteHeader(h.response)
 }
 
@@ -55,6 +61,23 @@ func TestHTTPHandlerWithStats_Error(t *testing.T) {
 	statsd := &MockStatsD{}
 	logger := &MockLogger{}
 	router := &MockHandler{response: http.StatusInternalServerError}
+	httpHandler := HTTPHandlerWithStats("route", router, logger, statsd)
+
+	httpHandler.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest("GET", "http://example.com", nil))
+
+	lastLogCall := logger.LastCall()
+
+	assert.NotNil(t, lastLogCall, "Expected call to be made")
+	assert.Equal(t, "Error", lastLogCall.Method)
+	assert.Equal(t, "[Request to http://example.com had response code 500]", lastLogCall.Args.Msg)
+
+	checkMetricsCalled(t, statsd, "route", http.StatusInternalServerError, "500")
+}
+
+func TestHTTPHandlerPanic(t *testing.T) {
+	statsd := &MockStatsD{}
+	logger := &MockLogger{}
+	router := &MockHandler{panic: true}
 	httpHandler := HTTPHandlerWithStats("route", router, logger, statsd)
 
 	httpHandler.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest("GET", "http://example.com", nil))
