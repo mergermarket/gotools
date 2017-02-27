@@ -1,18 +1,18 @@
 package tools
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
 	"testing"
-	"fmt"
 )
 
 func checkMetricsCalled(t *testing.T, statsd *MockStatsD, routeName string, response int, statusCode string) {
 	call := statsd.Calls
 
-	expectedTags := []string{"route:"+routeName, "response:"+strconv.Itoa(response)}
+	expectedTags := []string{"route:" + routeName, "response:" + strconv.Itoa(response)}
 
 	assert.Len(t, call, 3)
 	assert.Equal(t, "Histogram", call[0].Method)
