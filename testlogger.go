@@ -1,11 +1,13 @@
 package tools
 
-import "testing"
+type T interface {
+	Log(args ...interface{})
+}
 
 // TestLogger accepts the testing package so you wont be bombarded with logs
 // when your tests pass but if they fail you will see what's going on.
 type TestLogger struct {
-	T *testing.T
+	T T
 }
 
 // Info logs info to the test logger.

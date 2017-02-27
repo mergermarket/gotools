@@ -24,7 +24,6 @@ type httpClientWithStats struct {
 	clock      clock
 }
 
-
 func (thc *httpClientWithStats) Do(r *http.Request, tags ...string) (*http.Response, error) {
 	tags = append(tags, fmt.Sprintf("method:%s", r.Method))
 	start := thc.clock.Now()

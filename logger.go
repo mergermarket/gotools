@@ -44,7 +44,7 @@ func (l *logrusLogger) Warn(msg ...interface{}) {
 func withFileAndLine(fields logrus.Fields) logrus.Fields {
 	newFields := make(map[string]interface{})
 	_, file, line, ok := runtime.Caller(2)
-	for k,v := range fields {
+	for k, v := range fields {
 		newFields[k] = v
 	}
 	if ok {
