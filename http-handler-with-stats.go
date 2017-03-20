@@ -18,21 +18,18 @@ func HTTPHandlerWithStats(routeName string, router http.Handler, logger logger, 
 		logger.Debug(r.Method, "at", r.URL.String())
 		metrics := httpsnoop.CaptureMetrics(router, w, r)
 
-		logResult(routeName, metrics, statsd, logger, r.URL.String())
+		logResult(routeName, metrics, statsd, logger, r)
 	})
 }
 
-func logResult(routeName string, metrics httpsnoop.Metrics, statsd StatsD, logger logger, url string) {
+func logResult(routeName string, metrics httpsnoop.Metrics, statsd StatsD, logger logger, req *http.Request) {
 	responseTag := fmt.Sprintf("response:%d", metrics.Code)
-	statsd.Histogram(WebResponseTimeKey, float64(metrics.Duration.Nanoseconds())/1000000, "route:"+routeName, responseTag)
-	responseCodeKey := fmt.Sprintf(WebResponseCodeFormatKey, metrics.Code)
-	statsd.Incr(responseCodeKey, "route:"+routeName, responseTag)
-	statsd.Incr(WebResponseCodeAllKey, "route:"+routeName, responseTag)
-
-	message := fmt.Sprint("Request to ", url, " had response code ", metrics.Code)
-	if metrics.Code >= 400 {
-		logger.Error(message)
-	} else {
-		logger.Info(message)
+	tags := []string{"route:" + routeName, responseTag}
+	if caller := req.Header.Get("X-Component"); caller != "" {
+		tags = append(tags, "caller:"+caller)
 	}
+	statsd.Histogram(WebResponseTimeKey, float64(metrics.Duration.Nanoseconds())/1000000, tags...)
+	statsd.Incr(fmt.Sprintf(WebResponseCodeFormatKey, metrics.Code), tags...)
+	statsd.Incr(WebResponseCodeAllKey, tags...)
+	logger.Debug("Request to ", req.URL.String(), " had response code ", metrics.Code)
 }
