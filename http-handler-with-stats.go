@@ -24,7 +24,6 @@ func HTTPHandlerWithStats(routeName string, router http.Handler, logger logger, 
 
 func logResult(routeName string, metrics httpsnoop.Metrics, statsd StatsD, logger logger, req *http.Request) {
 	responseTag := fmt.Sprintf("response:%d", metrics.Code)
-
 	tags := []string{"route:" + routeName, responseTag}
 	if caller := req.Header.Get("X-Component"); caller != "" {
 		tags = append(tags, "caller:"+caller)
@@ -32,5 +31,5 @@ func logResult(routeName string, metrics httpsnoop.Metrics, statsd StatsD, logge
 	statsd.Histogram(WebResponseTimeKey, float64(metrics.Duration.Nanoseconds())/1000000, tags...)
 	statsd.Incr(fmt.Sprintf(WebResponseCodeFormatKey, metrics.Code), tags...)
 	statsd.Incr(WebResponseCodeAllKey, tags...)
-	logger.Debug(fmt.Sprint("Request to ", req.URL.String(), " had response code ", metrics.Code))
+	logger.Debug("Request to ", req.URL.String(), " had response code ", metrics.Code)
 }
