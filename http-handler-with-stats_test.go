@@ -44,7 +44,7 @@ func TestHTTPHandlerWithStats(t *testing.T) {
 	lastLogCall := logger.LastCall()
 
 	assert.NotNil(t, lastLogCall, "Expected call to be made")
-	assert.Equal(t, "Info", lastLogCall.Method)
+	assert.Equal(t, "Debug", lastLogCall.Method)
 	assert.Equal(t, "[Request to http://example.com had response code 200]", lastLogCall.Args.Msg)
 
 	checkMetricsCalled(t, statsd, "route", http.StatusOK, "200")
@@ -62,7 +62,7 @@ func TestHTTPHandlerWithStats_Error(t *testing.T) {
 	lastLogCall := logger.LastCall()
 
 	assert.NotNil(t, lastLogCall, "Expected call to be made")
-	assert.Equal(t, "Error", lastLogCall.Method)
+	assert.Equal(t, "Debug", lastLogCall.Method)
 	assert.Equal(t, "[Request to http://example.com had response code 500]", lastLogCall.Args.Msg)
 
 	checkMetricsCalled(t, statsd, "route", http.StatusInternalServerError, "500")
