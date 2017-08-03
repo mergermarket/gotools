@@ -29,16 +29,16 @@ func (thc *httpClientWithStats) Do(r *http.Request, tags ...string) (*http.Respo
 	start := thc.clock.Now()
 	resp, err := thc.httpClient.Do(r)
 	if err != nil {
-		thc.statsd.Incr(HttpClientResponseErrorKey, tags...)
+		thc.statsd.Incr(HttpClientResponseErrorKey, 1, tags...)
 	} else {
 		finish := thc.clock.Now()
 		duration := (finish.Nanosecond() - start.Nanosecond()) / 1000000
 		tags = append(tags, fmt.Sprintf("resp_status:%d", resp.StatusCode))
 		thc.statsd.Histogram(HttpClientResponseTimeKey, float64(duration), tags...)
-		thc.statsd.Incr(HttpClientResponseSuccessKey, tags...)
+		thc.statsd.Incr(HttpClientResponseSuccessKey,1, tags...)
 		responseCodeKey := fmt.Sprintf(HttpClientResponseCodeFormatKey, resp.StatusCode)
-		thc.statsd.Incr(responseCodeKey, tags...)
-		thc.statsd.Incr(HttpClientResponseCodeAllKey, tags...)
+		thc.statsd.Incr(responseCodeKey, 1,tags...)
+		thc.statsd.Incr(HttpClientResponseCodeAllKey, 1, tags...)
 	}
 	return resp, err
 }
