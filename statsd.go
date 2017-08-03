@@ -26,7 +26,8 @@ const (
 type StatsD interface {
 	Histogram(name string, value float64, tags ...string)
 	Gauge(name string, value float64, tags ...string)
-	Incr(name string, rate float64, tags ...string)
+	Incr(name string, tags ...string)
+	Count(name string, value int64, tags ...string)
 }
 
 // StatsDConfig provides configuration for metrics recording
@@ -108,8 +109,15 @@ func (mmsd *mmStatsD) Gauge(name string, value float64, tags ...string) {
 	}
 }
 
-func (mmsd *mmStatsD) Incr(name string, rate float64, tags ...string) {
-	if err := mmsd.ddstatsd.Incr(name, tags, rate); err != nil {
+func (mmsd *mmStatsD) Incr(name string, tags ...string) {
+	if err := mmsd.ddstatsd.Incr(name, tags, statsdRate); err != nil {
+		errMsg := fmt.Sprintf(statsDErrFmt, statsDErrMsg, name, err)
+		mmsd.log.Error(errMsg)
+	}
+}
+
+func (mmsd *mmStatsD) Count(name string, value int64, tags ...string) {
+	if err := mmsd.ddstatsd.Count(name, value, tags, statsdRate); err != nil {
 		errMsg := fmt.Sprintf(statsDErrFmt, statsDErrMsg, name, err)
 		mmsd.log.Error(errMsg)
 	}
@@ -131,7 +139,12 @@ func (dsd dummyStatsD) Gauge(name string, value float64, tags ...string) {
 	dsd.Info(logString)
 }
 
-func (dsd dummyStatsD) Incr(name string, rate float64, tags ...string) {
-	logString := fmt.Sprintf(dummyFmtString, "Increment", name, rate, tags)
+func (dsd dummyStatsD) Incr(name string, tags ...string) {
+	logString := fmt.Sprintf(dummyFmtString, "Increment", name, tags)
+	dsd.Info(logString)
+}
+
+func (dsd dummyStatsD) Count(name string, value int64, tags ...string) {
+	logString := fmt.Sprintf(dummyFmtString, "Count", name, value, tags)
 	dsd.Info(logString)
 }

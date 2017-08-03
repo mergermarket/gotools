@@ -41,8 +41,13 @@ func (msd *MockStatsD) Gauge(name string, value float64, tags ...string) {
 }
 
 // Incr is a mock histogram method
-func (msd *MockStatsD) Incr(name string, rate float64, tags ...string) {
-	msd.call("Incr", name, rate, tags)
+func (msd *MockStatsD) Incr(name string, tags ...string) {
+	msd.call("Incr", name, 0, tags)
+}
+
+// Count is a mock Count method
+func (msd *MockStatsD) Count(name string, value int64, tags ...string) {
+	msd.call("Count", name, float64(value), tags)
 }
 
 func (msd *MockStatsD) Call() (c Call, err error) {
