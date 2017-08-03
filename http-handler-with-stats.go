@@ -29,7 +29,7 @@ func logResult(routeName string, metrics httpsnoop.Metrics, statsd StatsD, logge
 		tags = append(tags, "caller:"+caller)
 	}
 	statsd.Histogram(WebResponseTimeKey, float64(metrics.Duration.Nanoseconds())/1000000, tags...)
-	statsd.Incr(fmt.Sprintf(WebResponseCodeFormatKey, metrics.Code), 1, tags...)
-	statsd.Incr(WebResponseCodeAllKey, 1, tags...)
+	statsd.Incr(fmt.Sprintf(WebResponseCodeFormatKey, metrics.Code), tags...)
+	statsd.Incr(WebResponseCodeAllKey, tags...)
 	logger.Debug("Request to", req.URL.String(), "had response code", metrics.Code)
 }
