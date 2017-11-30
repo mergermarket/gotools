@@ -57,7 +57,7 @@ func NewStatsD(config StatsDConfig) (StatsD, error) {
 
 func newMMStatsD(config StatsDConfig) (*mmStatsD, error) {
 	if config.port == "" || config.host == "" {
-		return nil, errors.New("You bastard")
+		return nil, errors.New("Port and Host are required fields")
 	}
 
 	sd, err := statsd.New(config.host + ":" + config.port)
