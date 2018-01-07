@@ -1,11 +1,10 @@
 package tools
 
 import (
+	"github.com/sirupsen/logrus"
 	"os"
-	"strings"
-
-	"github.com/Sirupsen/logrus"
 	"runtime"
+	"strings"
 )
 
 type Logger interface {

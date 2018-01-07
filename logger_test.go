@@ -1,7 +1,7 @@
 package tools
 
 import (
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

@@ -10,7 +10,9 @@ import (
 
 const (
 	statsdRate                      = 1
-	dummyFmtString                  = "%s: name: %s, value: %f, tags: %v"
+	dummyFmtString1                 = "%s: name: %s, value: %f, tags: %v"
+	dummyFmtString2                 = "%s: name: %s, tags: %v"
+	dummyFmtString3                 = "%s: name: %s, value: %d, tags: %v"
 	HttpClientResponseCodeAllKey    = "http_client.response_code.all"
 	HttpClientResponseTimeKey       = "http_client.response_time_ms"
 	HttpClientResponseErrorKey      = "http_client.response_error"
@@ -130,21 +132,21 @@ type dummyStatsD struct {
 }
 
 func (dsd dummyStatsD) Histogram(name string, value float64, tags ...string) {
-	logString := fmt.Sprintf(dummyFmtString, "Histogram", name, value, tags)
+	logString := fmt.Sprintf(dummyFmtString1, "Histogram", name, value, tags)
 	dsd.Info(logString)
 }
 
 func (dsd dummyStatsD) Gauge(name string, value float64, tags ...string) {
-	logString := fmt.Sprintf(dummyFmtString, "Gauge", name, value, tags)
+	logString := fmt.Sprintf(dummyFmtString1, "Gauge", name, value, tags)
 	dsd.Info(logString)
 }
 
 func (dsd dummyStatsD) Incr(name string, tags ...string) {
-	logString := fmt.Sprintf(dummyFmtString, "Increment", name, tags)
+	logString := fmt.Sprintf(dummyFmtString2, "Increment", name, tags)
 	dsd.Info(logString)
 }
 
 func (dsd dummyStatsD) Count(name string, value int64, tags ...string) {
-	logString := fmt.Sprintf(dummyFmtString, "Count", name, value, tags)
+	logString := fmt.Sprintf(dummyFmtString3, "Count", name, value, tags)
 	dsd.Info(logString)
 }

@@ -59,7 +59,8 @@ func TestHTTPClientWithStats_Do_Error(t *testing.T) {
 	hc := http.DefaultClient
 	wc := NewHTTPClientWithStats(hc, msd)
 
-	req, _ := http.NewRequest("GET", "http://not-a-domain.zyzyuyziuy", nil)
+	req, _ := http.NewRequest("GET", "http://nil", nil)
+	req.URL = nil
 
 	assert.Len(t, msd.Calls, 0)
 

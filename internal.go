@@ -1,10 +1,10 @@
 package tools
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"runtime"
-	"encoding/json"
 )
 
 // InternalHealthCheck is used by our infrastructure to check the service is listening
@@ -33,8 +33,11 @@ func InternalRuntimeInfo(w http.ResponseWriter, r *http.Request) {
 	versionInfoBytes, err := json.Marshal(versionInfo)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write([]byte("Error converting runtime info to JSON"))
 	}
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(versionInfoBytes)
+	_, err = w.Write(versionInfoBytes)
+	if err != nil {
+		fmt.Printf("Error writing versionInfo response: %v", err)
+	}
+
 }

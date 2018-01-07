@@ -37,7 +37,7 @@ func (thc *httpClientWithStats) Do(r *http.Request, tags ...string) (*http.Respo
 		thc.statsd.Histogram(HttpClientResponseTimeKey, float64(duration), tags...)
 		thc.statsd.Incr(HttpClientResponseSuccessKey, tags...)
 		responseCodeKey := fmt.Sprintf(HttpClientResponseCodeFormatKey, resp.StatusCode)
-		thc.statsd.Incr(responseCodeKey,tags...)
+		thc.statsd.Incr(responseCodeKey, tags...)
 		thc.statsd.Incr(HttpClientResponseCodeAllKey, tags...)
 	}
 	return resp, err
