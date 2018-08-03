@@ -3,60 +3,34 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "WvApwvvSe3i/3KO8300dyeFmkbI=",
-			"path": "github.com/DataDog/datadog-go/statsd",
-			"revision": "b10af4b12965a1ad08d164f57d14195b4140d8de",
-			"revisionTime": "2017-08-09T10:47:06Z"
-		},
-		{
-			"checksumSHA1": "OFu4xJEIjiI8Suu+j/gabfp+y6Q=",
-			"origin": "github.com/stretchr/testify/vendor/github.com/davecgh/go-spew/spew",
-			"path": "github.com/davecgh/go-spew/spew",
-			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
-			"revisionTime": "2017-01-30T11:31:45Z"
-		},
-		{
 			"checksumSHA1": "Fanvk5Tua0lSCtgEB+Ji0lZD1B8=",
 			"path": "github.com/felixge/httpsnoop",
 			"revision": "eadd4fad6aac69ae62379194fe0219f3dbc80fd3",
 			"revisionTime": "2017-06-29T01:04:42Z"
 		},
 		{
-			"checksumSHA1": "zKKp5SZ3d3ycKe4EKMNT0BqAWBw=",
-			"origin": "github.com/stretchr/testify/vendor/github.com/pmezard/go-difflib/difflib",
-			"path": "github.com/pmezard/go-difflib/difflib",
-			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
-			"revisionTime": "2017-01-30T11:31:45Z"
-		},
-		{
-			"checksumSHA1": "ySaT8G3I3y4MmnoXOYAAX0rC+p8=",
+			"checksumSHA1": "rdXBSMsIpX89xZS5rUwnBGZOe+Q=",
 			"path": "github.com/sirupsen/logrus",
-			"revision": "d682213848ed68c0a260ca37d6dd5ace8423f5ba",
-			"revisionTime": "2017-12-05T20:32:29Z"
+			"revision": "d329d24db4313262a3b0a24d8aeb1dc4bd294fb0",
+			"revisionTime": "2018-07-31T16:13:55Z"
 		},
 		{
-			"checksumSHA1": "JXUVA1jky8ZX8w09p2t5KLs97Nc=",
-			"path": "github.com/stretchr/testify/assert",
-			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
-			"revisionTime": "2017-01-30T11:31:45Z"
-		},
-		{
-			"checksumSHA1": "nqWNlnMmVpt628zzvyo6Yv2CX5Q=",
+			"checksumSHA1": "BGm8lKZmvJbf/YOJLeL1rw2WVjA=",
 			"path": "golang.org/x/crypto/ssh/terminal",
-			"revision": "81e90905daefcd6fd217b62423c0908922eadb30",
-			"revisionTime": "2017-08-25T20:24:07Z"
+			"revision": "56440b844dfe139a8ac053f4ecac0b20b79058f4",
+			"revisionTime": "2018-08-02T22:11:18Z"
 		},
 		{
-			"checksumSHA1": "w70GrQt8nhjc6j0i3rEZjWuSpKY=",
+			"checksumSHA1": "f3Wxw5WLLQ3ss7Fn2lBZiMzj6NQ=",
 			"path": "golang.org/x/sys/unix",
-			"revision": "7ddbeae9ae08c6a06a59597f0c9edbc5ff2444ce",
-			"revisionTime": "2017-09-01T16:16:44Z"
+			"revision": "0ffbfd41fbef8ffcf9b62b0b0aa3a5873ed7a4fe",
+			"revisionTime": "2018-08-02T19:25:30Z"
 		},
 		{
-			"checksumSHA1": "gVfCD++7aVcdKF2spv6XkEM/wYw=",
+			"checksumSHA1": "Hi7BmkvZh4plNNLGDHfPnCKy3i8=",
 			"path": "golang.org/x/sys/windows",
-			"revision": "7ddbeae9ae08c6a06a59597f0c9edbc5ff2444ce",
-			"revisionTime": "2017-09-01T16:16:44Z"
+			"revision": "0ffbfd41fbef8ffcf9b62b0b0aa3a5873ed7a4fe",
+			"revisionTime": "2018-08-02T19:25:30Z"
 		}
 	],
 	"rootPath": "github.com/mergermarket/gotools"

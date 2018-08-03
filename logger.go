@@ -5,6 +5,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 )
 
 type Logger interface {
@@ -65,7 +66,15 @@ func NewLogger(isLocal bool) Logger {
 	}
 
 	if !isLocal {
-		logger.Formatter = &logrus.JSONFormatter{}
+		logrus.SetFormatter(
+			&logrus.JSONFormatter{
+				TimestampFormat: time.RFC3339Nano,
+				FieldMap: logrus.FieldMap{
+					logrus.FieldKeyTime: "timestamp",
+					logrus.FieldKeyMsg:  "message",
+				},
+			},
+		)
 	}
 
 	return &logrusLogger{
