@@ -65,6 +65,14 @@ func NewLogger(isLocal bool) Logger {
 		logger.Level = logrus.DebugLevel
 	}
 
+	if strings.ToLower(os.Getenv("LOG_LEVEL")) == "info" {
+		logger.Level = logrus.InfoLevel
+	}
+
+	if strings.ToLower(os.Getenv("LOG_LEVEL")) == "warn" {
+		logger.Level = logrus.WarnLevel
+	}
+
 	if !isLocal {
 		logrus.SetFormatter(
 			&logrus.JSONFormatter{
