@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"os"
 	"runtime"
@@ -10,9 +11,13 @@ import (
 
 type Logger interface {
 	Info(msg ...interface{})
+	Infof(format string, a ...interface{})
 	Error(msg ...interface{})
+	Errorf(format string, a ...interface{})
 	Debug(msg ...interface{})
+	Debugf(format string, a ...interface{})
 	Warn(msg ...interface{})
+	Warnf(format string, a ...interface{})
 }
 
 // Logger logs messages in a structured format in prod and pretty colours in local.
@@ -23,22 +28,42 @@ type logrusLogger struct {
 
 // Info should be used to log key application events.
 func (l *logrusLogger) Info(msg ...interface{}) {
-	l.log.WithFields(withFileAndLine(l.fields)).Info(msg)
+	l.log.WithFields(withFileAndLine(l.fields)).Info(msg...)
+}
+
+// Infof logs key application events with a format (like fmt)
+func (l *logrusLogger) Infof(format string, a ...interface{}) {
+	l.Info(fmt.Sprintf(format, a...))
 }
 
 // Error should be used to log events that need to be actioned on immediately.
 func (l *logrusLogger) Error(msg ...interface{}) {
-	l.log.WithFields(withFileAndLine(l.fields)).Error(msg)
+	l.log.WithFields(withFileAndLine(l.fields)).Error(msg...)
+}
+
+// Errorf should be used to log events that need to be actioned on immediately
+func (l *logrusLogger) Errorf(format string, a ...interface{}) {
+	l.Error(fmt.Sprintf(format, a...))
 }
 
 // Debug can be used to log events for local development.
 func (l *logrusLogger) Debug(msg ...interface{}) {
-	l.log.WithFields(withFileAndLine(l.fields)).Debug(msg)
+	l.log.WithFields(withFileAndLine(l.fields)).Debug(msg...)
+}
+
+// Debugf can be used to log events for local development.
+func (l *logrusLogger) Debugf(format string, a ...interface{}) {
+	l.Debug(fmt.Sprintf(format, a...))
 }
 
 // Warn is for when something bad happened but doesnt need instant action.
 func (l *logrusLogger) Warn(msg ...interface{}) {
-	l.log.WithFields(withFileAndLine(l.fields)).Warn(msg)
+	l.log.WithFields(withFileAndLine(l.fields)).Warn(msg...)
+}
+
+// Warnf is for when something bad happened but doesnt need instant action.
+func (l *logrusLogger) Warnf(format string, a ...interface{}) {
+	l.Warn(fmt.Sprintf(format, a...))
 }
 
 func withFileAndLine(fields logrus.Fields) logrus.Fields {
@@ -74,15 +99,13 @@ func NewLogger(isLocal bool) Logger {
 	}
 
 	if !isLocal {
-		logrus.SetFormatter(
-			&logrus.JSONFormatter{
-				TimestampFormat: time.RFC3339Nano,
-				FieldMap: logrus.FieldMap{
-					logrus.FieldKeyTime: "timestamp",
-					logrus.FieldKeyMsg:  "message",
-				},
+		logger.Formatter = &logrus.JSONFormatter{
+			TimestampFormat: time.RFC3339Nano,
+			FieldMap: logrus.FieldMap{
+				logrus.FieldKeyTime: "timestamp",
+				logrus.FieldKeyMsg:  "message",
 			},
-		)
+		}
 	}
 
 	return &logrusLogger{

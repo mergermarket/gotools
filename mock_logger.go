@@ -23,17 +23,42 @@ type LoggerArgs struct {
 
 // Info is a mock info method
 func (ml *MockLogger) Info(args ...interface{}) {
-	ml.call("Info", args)
+	ml.call("Info", args...)
+}
+
+// Infof is a mock info method
+func (ml *MockLogger) Infof(format string, args ...interface{}) {
+	ml.call("Info", fmt.Sprintf(format, args...))
 }
 
 // Info is a mock info method
 func (ml *MockLogger) Error(args ...interface{}) {
-	ml.call("Error", args)
+	ml.call("Error", args...)
+}
+
+// Errorf is a mock info method
+func (ml *MockLogger) Errorf(format string, args ...interface{}) {
+	ml.call("Error", fmt.Sprintf(format, args...))
 }
 
 // Debug is a mock debug method
 func (ml *MockLogger) Debug(args ...interface{}) {
-	ml.call("Debug", args)
+	ml.call("Debug", args...)
+}
+
+// Debugf is a mock debug method
+func (ml *MockLogger) Debugf(format string, args ...interface{}) {
+	ml.call("Debug", fmt.Sprintf(format, args...))
+}
+
+// Warn is a mock debug method
+func (ml *MockLogger) Warn(args ...interface{}) {
+	ml.call("Warn", args...)
+}
+
+// Warnf is a mock debug method
+func (ml *MockLogger) Warnf(format string, args ...interface{}) {
+	ml.call("Warn", fmt.Sprintf(format, args...))
 }
 
 func (ml *MockLogger) Call() (c LoggerCall, err error) {
