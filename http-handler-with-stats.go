@@ -25,5 +25,5 @@ func logResult(routeName string, metrics httpsnoop.Metrics, statsd StatsD, logge
 	statsd.Histogram(WebResponseTimeKey, float64(metrics.Duration.Nanoseconds())/1000000, tags...)
 	statsd.Incr(fmt.Sprintf(WebResponseCodeFormatKey, metrics.Code), tags...)
 	statsd.Incr(WebResponseCodeAllKey, tags...)
-	logger.Debugf("Request to %s had response code %d", req.URL.String(), metrics.Code)
+	logger.Debugf("Request to %s had response code %d in %dms", req.URL.String(), metrics.Code, metrics.Duration.Milliseconds())
 }
