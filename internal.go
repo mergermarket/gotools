@@ -14,7 +14,7 @@ func InternalHealthCheck(w http.ResponseWriter, r *http.Request) {
 }
 
 // InternalLogConfig creates an http handler which logs out the app's config
-func InternalLogConfig(config interface{}, logger logger) http.HandlerFunc {
+func InternalLogConfig(config interface{}, logger Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger.Info(fmt.Sprintf("Application config - %+v", config))
 		fmt.Fprint(w, "Logged the config")
