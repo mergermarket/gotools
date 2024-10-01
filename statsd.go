@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"errors"
-	"github.com/DataDog/datadog-go/statsd"
+	"github.com/DataDog/datadog-go/v5/statsd"
 )
 
 const (
@@ -62,24 +62,21 @@ func newMMStatsD(config StatsDConfig) (*mmStatsD, error) {
 		return nil, errors.New("Port and Host are required fields")
 	}
 
-	sd, err := statsd.New(config.host + ":" + config.port)
+	sd, err := statsd.New(config.host+":"+config.port, withGlobalNamespace(), withGlobalTags())
 
 	if err != nil {
 		return nil, err
 	}
 
-	addGlobalNamespace(sd)
-	addGlobalTags(sd)
-
 	return &mmStatsD{sd, config.log}, nil
 }
 
-func addGlobalNamespace(sd *statsd.Client) {
-	sd.Namespace = "app."
+func withGlobalNamespace() statsd.Option {
+	return statsd.WithNamespace("app.")
 }
 
-func addGlobalTags(sd *statsd.Client) {
-	sd.Tags = append(sd.Tags, globalTags()...)
+func withGlobalTags() statsd.Option {
+	return statsd.WithTags(globalTags())
 }
 
 func globalTags() []string {

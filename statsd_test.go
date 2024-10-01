@@ -1,7 +1,9 @@
 package tools
 
-import "testing"
-import "github.com/DataDog/datadog-go/statsd"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestNewStatsD(t *testing.T) {
 	config := StatsDConfig{
@@ -10,7 +12,7 @@ func TestNewStatsD(t *testing.T) {
 		port:         "8080",
 	}
 	sd, _ := newMMStatsD(config)
-	namespace := sd.ddstatsd.Namespace
+	namespace := reflect.ValueOf(sd.ddstatsd).Elem().FieldByName("namespace").String()
 
 	if namespace != "app." {
 		t.Error("Was expecting the default namespace, but got ", namespace)
@@ -38,7 +40,7 @@ func TestGlobalTagging(t *testing.T) {
 	}
 	sd, _ := newMMStatsD(config)
 
-	tags := sd.ddstatsd.Tags
+	tags := reflect.ValueOf(sd.ddstatsd).Elem().FieldByName("tags").Slice(0, 2)
 
 	if !contains(tags, "env:local") {
 		t.Error("Expected a global tag of 'env:local', but it wasn't in ", tags)
@@ -49,31 +51,9 @@ func TestGlobalTagging(t *testing.T) {
 	}
 }
 
-func TestAddGlobalNamespace(t *testing.T) {
-	sd := statsd.Client{}
-	addGlobalNamespace(&sd)
-
-	if sd.Namespace != "app." {
-		t.Error("Was expecting the default namespace, but got ", sd.Namespace)
-	}
-}
-
-func TestAddGlobalTags(t *testing.T) {
-	sd := statsd.Client{}
-	addGlobalTags(&sd)
-
-	if !contains(sd.Tags, "env:local") {
-		t.Error("Expected a global tag of 'env:local', but it wasn't in ", sd.Tags)
-	}
-
-	if !contains(sd.Tags, "component:a-service-has-no-name") {
-		t.Error("Expected a global tag of 'component:a-service-has-no-name', but it wasn't in ", sd.Tags)
-	}
-}
-
-func contains(strings []string, target string) bool {
-	for _, s := range strings {
-		if s == target {
+func contains(strings reflect.Value, target string) bool {
+	for i := 0; i < strings.Len(); i++ {
+		if strings.Index(i).String() == target {
 			return true
 		}
 	}
