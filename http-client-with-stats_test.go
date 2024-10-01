@@ -26,7 +26,7 @@ func TestHTTPClientWithStats_Do(t *testing.T) {
 	hc := http.DefaultClient
 	wc := &httpClientWithStats{statsd: msd, httpClient: hc, clock: fc}
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		fmt.Fprintln(w, "Hello World")
 	}))
 	defer ts.Close()
@@ -79,7 +79,7 @@ func TestHTTPClientWithStats_Get(t *testing.T) {
 	msd := &MockStatsD{}
 	hc := http.DefaultClient
 	wc := NewHTTPClientWithStats(hc, msd)
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		fmt.Fprintln(w, "Hello World")
 	}))
 	defer ts.Close()
@@ -103,7 +103,7 @@ func TestHttpClientWithStats_Post(t *testing.T) {
 	msd := &MockStatsD{}
 	hc := http.DefaultClient
 	wc := NewHTTPClientWithStats(hc, msd)
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		fmt.Fprintln(w, "Hello World")
 	}))
 	defer ts.Close()

@@ -8,6 +8,9 @@ import (
 	"github.com/DataDog/datadog-go/v5/statsd"
 )
 
+// Disable the linter because it complains about the field names, which shouldn't be changed.
+//
+//revive:disable
 const (
 	statsdRate                      = 1
 	dummyFmtString1                 = "%s: name: %s, value: %f, tags: %v"
@@ -22,6 +25,8 @@ const (
 	WebResponseCodeFormatKey        = "web.response_code.%d"
 	WebResponseCodeAllKey           = "web.response_code.all"
 )
+
+//revive:enable
 
 // StatsD is the interface for the all the DataDog StatsD methods used by
 // mergermarket. Please extend it as needed to record other types of metric.
@@ -51,7 +56,7 @@ func NewStatsDConfig(isProduction bool, log Logger) StatsDConfig {
 
 // NewStatsD provides a new StatsD metrics recorder
 func NewStatsD(config StatsDConfig) (StatsD, error) {
-	if config.isProduction == false || config.port == "" || config.host == "" {
+	if !config.isProduction || config.port == "" || config.host == "" {
 		return &dummyStatsD{config.log}, nil
 	}
 	return newMMStatsD(config)

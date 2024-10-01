@@ -1,11 +1,13 @@
-FROM golang:1.9
+#syntax=docker/dockerfile:1.10.0
 
-RUN go get -u github.com/alecthomas/gometalinter
-RUN go get -u github.com/kardianos/govendor
-RUN go get -u github.com/securego/gosec
-RUN go get -u github.com/stretchr/testify/assert
-RUN go get -u github.com/kyoh86/richgo
-RUN gometalinter --install
+ARG GOLANG_VERSION=1.23.1
+ARG GOLANG_LINT_VERSION=1.61.0
+
+FROM golang:${GOLANG_VERSION}
+ENV CGO_ENABLED=0
+
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin ${GOLANG_LINT_VERSION}
+
 WORKDIR /go/src/github.com/mergermarket/gotools
 ADD . /go/src/github.com/mergermarket/gotools
 CMD ./build.sh

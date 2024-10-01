@@ -4,6 +4,8 @@
 
 Gotools provides a few simple building blocks for Mergermarket apps.
 
+Golang 1.20 or higher is required for version 2. Otherwise, randomstring doesn't work.
+
 ## internal
 
 Internal endpoints for http services. 

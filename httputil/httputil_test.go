@@ -1,9 +1,11 @@
 package httputil
 
-import "testing"
+import (
+	"io"
+	"testing"
+)
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -50,7 +52,7 @@ func TestValidate_WorksWithCaseInsensitiveHeaders(t *testing.T) {
 
 type TestHandler struct{}
 
-func (h TestHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+func (h TestHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	fmt.Fprint(w, "Hello from TestHandler")
 }
 
@@ -123,7 +125,7 @@ func TestValidateParamsHandler_SomeRequiredParamsMissing(t *testing.T) {
 	if resp.StatusCode != 400 {
 		t.Errorf("Expected status code 400 but got %d", resp.StatusCode)
 	}
-	bodybytes, err := ioutil.ReadAll(resp.Body)
+	bodybytes, _ := io.ReadAll(resp.Body)
 	resp.Body.Close()
 	body := string(bodybytes)
 	fmt.Println(body)
