@@ -26,7 +26,7 @@ func ValidateParamsHandler(h http.Handler, params ...string) http.Handler {
 		err := Validate(params, req)
 		if err != nil {
 			w.WriteHeader(400)
-			fmt.Fprintf(w, err.Error())
+			fmt.Fprintf(w, "%s", err.Error())
 			return
 		}
 		h.ServeHTTP(w, req)

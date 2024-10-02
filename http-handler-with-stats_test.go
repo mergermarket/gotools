@@ -29,7 +29,7 @@ type MockHandler struct {
 	response int
 }
 
-func (h MockHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h MockHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(h.response)
 }
 

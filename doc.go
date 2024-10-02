@@ -1,5 +1,4 @@
 /*
-
 This package contains a few simple tools for building Go web applications.
 
 InternalHealthCheck handles healthcheck requests from load balancers:
@@ -23,17 +22,14 @@ StatsD sends metrics to DataDog:
 	}
 	statsd.Histogram("important_action", .0001, "tag1:tag1value", "tag2:tag2value")
 
-
 HTTPHandlerWithStats takes an http.Handler and adds the sending of response time metrics to DataDog, and debug logging of request details:
 
-  	serveMux.Handle("/my-important-endpoint", importantHandler)
-  	tools.HTTPHandlerWithStats("/", serveMux, logger, statsd)
-
+	serveMux.Handle("/my-important-endpoint", importantHandler)
+	tools.HTTPHandlerWithStats("/", serveMux, logger, statsd)
 
 HTTPClientWithStats takes an http.Client and adds the sending of response time metrics to DataDog:
 
 	httpClient := tools.NewHTTPClientWithStats(http.DefaultClient, statsd, "foo-api")
 	resp, err := httpClient.Get("http://foo-api.com/important-data")
-
 */
 package tools

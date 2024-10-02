@@ -29,7 +29,7 @@ func NewGoRoutines(statsd StatsD, componentName string) http.Handler {
 	return g
 }
 
-func (g *goRoutines) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (g *goRoutines) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	goroutines := runtime.NumGoroutine()
 	fmt.Fprintf(w, "%d go routines", goroutines)
 }
