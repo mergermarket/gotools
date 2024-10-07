@@ -99,4 +99,12 @@ func main() {
 
 ## Contributing
 
-TODO
+How to create a new version:
+
+- Branch this git repository
+- Make your changes in the branch run the tests.
+- Once the libraries tests pass, test the changes one of the services that use this library.
+  - Copy this library's branched directory inside that service's directory
+  - Use golang's module replace to use your local copy.`go mod edit -replace github.com/mergermarket/gotools=gotools`
+- Once you are satisfied that it works, commit, push, and tag main with the new version number
+- Update the services with the new version by running `go get -u; go mod tidy` in each service.
