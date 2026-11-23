@@ -1,0 +1,19 @@
+name: Go CI
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build, lint, and test
+    runs-on: eus2-azure-github-runner-linux-x64-ubuntu-latest
+    steps:
+      - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
+      - name: Run Docker-based build and tests
+        run: ./test-in-docker.sh
